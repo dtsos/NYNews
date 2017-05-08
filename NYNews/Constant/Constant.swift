@@ -29,6 +29,8 @@ extension URLResponse {
 }
 
 extension UIImageView {
+    
+   
     func loadImageURL(_ url: URL?,placeholderImage:String,completionHandler:  @escaping (Bool,Data?,UIImage?) -> Swift.Void) {
         
         guard var imageComplete:UIImage = UIImage(named: placeholderImage) else{
@@ -39,6 +41,7 @@ extension UIImageView {
             completionHandler(false,nil,imageComplete)
             return
         }
+        
         let urlRequest = URLRequest(url: url)
         URLSession.shared.dataTask(with: urlRequest, completionHandler: { (data, response, error) -> Void in
             

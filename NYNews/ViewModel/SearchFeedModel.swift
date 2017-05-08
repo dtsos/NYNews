@@ -73,15 +73,16 @@ class SearchFeedModel:NSObject,NSFetchedResultsControllerDelegate {
         }
         stillDownload = true
         self.isNews = true
-        let  stringQuery =  "\(Constant.URLArticleSearch)\(Constant.paramAPIKeyValue)&page=\(page)&q=\(search.keyword!)&sort=newest"
-        fetcher.fetch(withQueryString: stringQuery, failure: { (error) in
+        lastStringQuery =  "\(Constant.URLArticleSearch)\(Constant.paramAPIKeyValue)&page=\(page)&q=\(search.keyword!)&sort=newest"
+        fetcher.fetch(withQueryString: lastStringQuery!, failure: { (error) in
             self.stillDownload =  false
             failed()
             
         }) { (dictionary) in
             guard let response: [String:AnyObject] =  dictionary["response"] as? [String:AnyObject] else{
-                failed()
                 self.stillDownload = false
+                failed()
+                
                 return
             }
             guard let data: [[String:AnyObject]] = response["docs"] as? [[String : AnyObject]]  else {
@@ -100,7 +101,7 @@ class SearchFeedModel:NSObject,NSFetchedResultsControllerDelegate {
                 beginUpdateView()
                 
                 var items:[NewsFeed] = search.listNews?.allObjects as! [NewsFeed]
-               items = items.sorted(by: {$0.dateModified?.compare($1.dateModified! as Date) == ComparisonResult.orderedDescending})
+               items = items.sorted(by: {$0.dateModified?.compare(($1.dateModified as Date?)!) == ComparisonResult.orderedDescending})
                 items = items.filter({$0.page == page})
                 let indexStart = 0
                 if indexStart < (items.count) {
@@ -142,7 +143,7 @@ class SearchFeedModel:NSObject,NSFetchedResultsControllerDelegate {
             }else{
                 let arrayAllNews: [NewsFeed] = search.listNews?.allObjects as! [NewsFeed]
                 let arrayNews = arrayAllNews.filter{ ($0 as NewsFeed).page == page }
-                print(arrayNews)
+                self.itemsNewsFeed.append(contentsOf: arrayNews )
 
             }
             self.page = page
@@ -152,7 +153,20 @@ class SearchFeedModel:NSObject,NSFetchedResultsControllerDelegate {
         }
         
     }
-    
+    var lastStringQuery:String?
+    func cancelOperation()
+    {
+        URLSession.shared.getTasksWithCompletionHandler { (dataStacks, uploadStacks, downloadStacks) in
+            for dataStack in dataStacks {
+                if self.lastStringQuery != nil {
+                    if dataStack.originalRequest?.url?.absoluteString == self.lastStringQuery {
+                dataStack.cancel()
+                        return
+                    }
+                }
+            }
+        }
+    }
     
     func createNewSearch(keyword:String) -> Search?{
         let search:Search = Search(context:self.managedObjectContext!)

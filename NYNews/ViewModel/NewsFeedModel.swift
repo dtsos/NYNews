@@ -10,6 +10,8 @@ import Foundation
 import CoreData
 class NewsModel {
     private let fetcher: Fetching
+    
+    
     init(fetcher: Fetching, dictionary: [String: AnyObject],search:Search,context:NSManagedObjectContext) {
         self.fetcher = fetcher
         
@@ -18,14 +20,14 @@ class NewsModel {
         self.news =  NewsFeed(context:context)
         self.id =  dictionary["_id"] as? String ?? ""
         if let headline = dictionary["headline"]{
-        self.title = headline["main"] as? String ?? ""
+            self.title = headline["main"] as? String ?? ""
         }
-      
+        
         if let multimedia:[[String:AnyObject]] =  dictionary["multimedia"] as? [[String : AnyObject]] {
             if multimedia.count > 0 {
                 
                 self.imageUrl = multimedia[multimedia.count > 1 ? multimedia.count  - 2:0]["url"] as? String ?? ""
-                print(self.imageUrl!)
+                
             }else{
                 self.imageUrl = ""
             }
@@ -43,7 +45,7 @@ class NewsModel {
         
         self.news?.whichSearch =  search
         
-
+        
         
         
         
@@ -62,7 +64,7 @@ class NewsModel {
             if multimedia.count > 0 {
                 
                 self.imageUrl = multimedia[multimedia.count > 1 ? multimedia.count  - 2:0]["url"] as? String ?? ""
-                print(self.imageUrl!)
+                
             }else{
                 self.imageUrl = ""
             }
@@ -186,7 +188,7 @@ class NewsModel {
 }
 protocol NewsFeedProtocol {
     func numberOfRows(inSection section: Int) -> Int
-   func checkServer(page:Int16,beginUpdateView: @escaping () -> Void,failed: @escaping () -> Void,completion: @escaping (_ page:Int16) -> Void)
+    func checkServer(page:Int16,beginUpdateView: @escaping () -> Void,failed: @escaping () -> Void,completion: @escaping (_ page:Int16) -> Void)
 }
 class NewsFeedModel : NewsFeedProtocol {
     func getNewsModel(index: Int) -> NewsModel? {
@@ -268,7 +270,7 @@ class NewsFeedModel : NewsFeedProtocol {
             
             
             do {
-               NSFetchedResultsController<NewsFeed>.deleteCache(withName:nil)
+                NSFetchedResultsController<NewsFeed>.deleteCache(withName:nil)
                 try self.fetchNewsController?.performFetch()
             } catch {
                 print(error)
@@ -331,9 +333,7 @@ class NewsFeedModel : NewsFeedProtocol {
                 if indexStart < (items?.count)! {
                     
                     for i in indexStart..<(items?.count)!{
-                        //                for aNewsFeed in items! {
-                        print("start")
-                        print(i)
+                        
                         if let aNewsFeed:NewsFeed? = items?[i] {
                             self.context?.delete(aNewsFeed!)
                             

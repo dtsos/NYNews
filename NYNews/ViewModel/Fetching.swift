@@ -14,6 +14,7 @@ protocol FetchingProtocol {
     
 }
 class Fetching: FetchingProtocol {
+    var operation:URLSessionDataTask?
     func fetch(withQueryString queryString: String,failure: @escaping (Error?) -> Void, completion: @escaping (NSDictionary) -> Void) {
         
         let encoded = queryString.addingPercentEncoding(withAllowedCharacters: CharacterSet.urlQueryAllowed)!
@@ -21,7 +22,7 @@ class Fetching: FetchingProtocol {
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         
-        URLSession.shared.dataTask(with: request, completionHandler: { (data: Data?, response: URLResponse?, error: Error?) in
+        operation = URLSession.shared.dataTask(with: request, completionHandler: { (data: Data?, response: URLResponse?, error: Error?) in
             guard data != nil else{
                 failure(nil)
                 return
@@ -36,7 +37,8 @@ class Fetching: FetchingProtocol {
                 print(error)
             }
             
-        }) .resume()
+        })
+        operation?.resume()
     }
     func fetch(withQueryString queryString: String,page:Int16,failure: @escaping (Error?) -> Void, completion: @escaping (NSDictionary) -> Void) {
         

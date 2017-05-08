@@ -20,6 +20,8 @@ class SearchCell : UICollectionViewCell {
 }
 class NewsCell : UICollectionViewCell {
     
+    var cache:NSCache<AnyObject, AnyObject>!
+    
     @IBOutlet weak var imageviewNews: UIImageView!
     @IBOutlet weak var imageviewLike: UIImageView!
     @IBOutlet weak var labelTime: UILabel!
@@ -54,8 +56,10 @@ class ListNewsViewController: UIViewController,UICollectionViewDelegate,UICollec
     let fetcher:Fetching = Fetching()
     var page:Int16 = 0
     let refreshControl:UIRefreshControl = UIRefreshControl()
+    var cache:NSCache<AnyObject, AnyObject>!
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.cache = NSCache()
         collectionView.delegate = self
         collectionView.dataSource =  self
         
@@ -134,6 +138,44 @@ class ListNewsViewController: UIViewController,UICollectionViewDelegate,UICollec
         
     }
     
+    //cache
+    func cacheImage(stringURl:String?, completionHandler:  @escaping (Bool,UIImage?) -> Swift.Void){
+        if (self.cache.object(forKey:stringURl as AnyObject) != nil){
+           
+            // Use Image from cache
+            completionHandler(true, self.cache.object(forKey: stringURl as AnyObject) as? UIImage)
+        }else{
+            
+            guard let stringURl = stringURl else {
+                completionHandler(false,nil)
+                return
+            }
+            //try download images
+            let url:URL! = URL(string: stringURl)
+            let urlRequest = URLRequest(url: url)
+            URLSession.shared.dataTask(with: urlRequest, completionHandler: { (data, response, error) -> Void in
+                
+                if let response = response, let data = data, response.isHTTPResponseValid() {
+                    DispatchQueue.main.async(execute: { () -> Void in
+                        let img:UIImage! = UIImage(data: data)
+                        if img != nil {
+                        self.cache.setObject(img, forKey: stringURl as AnyObject)
+                            completionHandler(true,img)
+                        }else{
+                            completionHandler(false,nil)
+                        }
+                        
+                    })
+                }else{
+                    
+                }
+                
+            }).resume()
+            
+        }
+        
+    }
+    
     
     //MARK: UICollectionViewDelegate
     
@@ -206,22 +248,28 @@ class ListNewsViewController: UIViewController,UICollectionViewDelegate,UICollec
         cell.labelUsername.text =  newsFeed?.title
         cell.labelTime.text =  newsFeed?.pubDate?.dateDiff()
         cell.labelMessage.text =  newsFeed?.snippet
-        let aNewsModel = newsModel?.getNewsModel(index: index.row)
-        if aNewsModel?.imageDataNews == nil{
-            cell.imageviewNews.image = UIImage(named:"nytime")
-            cell.imageviewNews.loadImageURL(URL(string:("\(Constant.RootServerImage)\((newsFeed?.imageUrl)!)")), placeholderImage: "nytime") { (success, data, image) in
-                if(success){
-                    aNewsModel?.imageDataNews = data
-                    
-                }
+//        let aNewsModel = newsModel?.getNewsModel(index: index.row)
+//        if aNewsModel?.imageDataNews == nil{
+//            
+
+//            cell.imageviewNews.loadImageURL(URL(string:("\(Constant.RootServerImage)\((newsFeed?.imageUrl)!)")), placeholderImage: "nytime") { (success, data, image) in
+//                if(success){
+//                    aNewsModel?.imageDataNews = data
+//                    
+//                }
+//                cell.imageviewNews.image = image
+//                
+//                
+//            }
+//        }else{
+//            cell.imageviewNews.image = UIImage(data:(aNewsModel?.imageDataNews)!)
+//        }
+                    cell.imageviewNews.image = UIImage(named:"nytime")
+        cacheImage(stringURl: "\(Constant.RootServerImage)\((newsFeed?.imageUrl)!)") { (success,image ) in
+            if success {
                 cell.imageviewNews.image = image
-                
-                
             }
-        }else{
-            cell.imageviewNews.image = UIImage(data:(aNewsModel?.imageDataNews)!)
         }
-        
         
         
     }
@@ -362,7 +410,9 @@ class ListNewsViewController: UIViewController,UICollectionViewDelegate,UICollec
         }
         searchFeed?.search(keyword: keyword, completion: { search in
             if self.searchFeed?.search != search {
+                self.searchFeed?.cancelOperation()
                 self.searchFeed?.search = search
+                
                 self.searchFeed?.checkServer(page: 0, search: search, beginUpdateView: self.update, failed: self.failed, completion: self.completion)
             }
         })
