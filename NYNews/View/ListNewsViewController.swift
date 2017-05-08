@@ -11,16 +11,12 @@ import CoreData
 
 class SearchCell : UICollectionViewCell {
     @IBOutlet weak var labelKeyword: UILabel!
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        layoutIfNeeded()
-        
-    }
+ 
     
 }
 class NewsCell : UICollectionViewCell {
     
-    var cache:NSCache<AnyObject, AnyObject>!
+    
     
     @IBOutlet weak var imageviewNews: UIImageView!
     @IBOutlet weak var imageviewLike: UIImageView!
@@ -49,7 +45,7 @@ class ListNewsViewController: UIViewController,UICollectionViewDelegate,UICollec
     var stringKeyword:String = ""
     
     /// Secondary search results table view.
-
+    
     var searchFeed:SearchFeedModel?
     
     var newsModel:NewsFeedModel?
@@ -57,6 +53,8 @@ class ListNewsViewController: UIViewController,UICollectionViewDelegate,UICollec
     var page:Int16 = 0
     let refreshControl:UIRefreshControl = UIRefreshControl()
     var cache:NSCache<AnyObject, AnyObject>!
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.cache = NSCache()
@@ -64,7 +62,7 @@ class ListNewsViewController: UIViewController,UICollectionViewDelegate,UICollec
         collectionView.dataSource =  self
         
         self.navigationController?.navigationBar.topItem?.title = "NY Times"
-
+        
         
         let cellWidth : CGFloat = UIScreen.main.bounds.size.width
         let cellheight : CGFloat = UIScreen.main.bounds.size.width * (3/4)
@@ -106,7 +104,7 @@ class ListNewsViewController: UIViewController,UICollectionViewDelegate,UICollec
     //MARK: UICollectionViewDelegate
     
     
-    @objc private func didPullToRefresh() {
+    func didPullToRefresh() {
         if self.searchController.isActive {
             if (searchFeed?.isNews)! && searchFeed?.search != nil {
                 self.searchFeed?.checkServer(page: 0, search: (searchFeed?.search)!, beginUpdateView: update, failed: failed, completion: completion)
@@ -141,7 +139,7 @@ class ListNewsViewController: UIViewController,UICollectionViewDelegate,UICollec
     //cache
     func cacheImage(stringURl:String?, completionHandler:  @escaping (Bool,UIImage?) -> Swift.Void){
         if (self.cache.object(forKey:stringURl as AnyObject) != nil){
-           
+            
             // Use Image from cache
             completionHandler(true, self.cache.object(forKey: stringURl as AnyObject) as? UIImage)
         }else{
@@ -159,7 +157,7 @@ class ListNewsViewController: UIViewController,UICollectionViewDelegate,UICollec
                     DispatchQueue.main.async(execute: { () -> Void in
                         let img:UIImage! = UIImage(data: data)
                         if img != nil {
-                        self.cache.setObject(img, forKey: stringURl as AnyObject)
+                            self.cache.setObject(img, forKey: stringURl as AnyObject)
                             completionHandler(true,img)
                         }else{
                             completionHandler(false,nil)
@@ -193,9 +191,7 @@ class ListNewsViewController: UIViewController,UICollectionViewDelegate,UICollec
         }
     }
     
-    func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
-        
-    }
+   
     //MARK: UICollectionViewDataSource
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
@@ -229,43 +225,25 @@ class ListNewsViewController: UIViewController,UICollectionViewDelegate,UICollec
         }
     }
     
-    
-    
-    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        if searchController.isActive && self.searchFeed?.isNews == false {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "CellSearch", for: indexPath)
-            
-            configureCell(cell as! SearchCell, withSearch: (searchFeed?.itemForRow(at: indexPath) as! Search), index: indexPath)
-            return cell
-        }else{
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "CellNews", for: indexPath)
-            configureCell(cell as! NewsCell, withFeed: searchController.isActive ?  (searchFeed?.itemForRow(at: indexPath) as! NewsFeed): self.fetchedResultsController.fetchedObjects?[indexPath.row],index:indexPath)
-            return cell
-        }
-    }
-    //configure Cell
+//    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+//        if searchController.isActive && self.searchFeed?.isNews == false {
+//            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "CellSearch", for: indexPath)
+//            
+//            configureCell(cell as! SearchCell, withSearch: (searchFeed?.itemForRow(at: indexPath) as! Search), index: indexPath)
+//            return cell
+//        }else{
+//            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "CellNews", for: indexPath)
+//            configureCell(cell as! NewsCell, withFeed: searchController.isActive ?  (searchFeed?.itemForRow(at: indexPath) as! NewsFeed): self.fetchedResultsController.fetchedObjects?[indexPath.row],index:indexPath)
+//            return cell
+//        }
+//    }
+    //configure Cell NewsFeed
     func configureCell(_ cell: NewsCell, withFeed newsFeed: NewsFeed?,index:IndexPath) {
         
         cell.labelUsername.text =  newsFeed?.title
         cell.labelTime.text =  newsFeed?.pubDate?.dateDiff()
         cell.labelMessage.text =  newsFeed?.snippet
-//        let aNewsModel = newsModel?.getNewsModel(index: index.row)
-//        if aNewsModel?.imageDataNews == nil{
-//            
-
-//            cell.imageviewNews.loadImageURL(URL(string:("\(Constant.RootServerImage)\((newsFeed?.imageUrl)!)")), placeholderImage: "nytime") { (success, data, image) in
-//                if(success){
-//                    aNewsModel?.imageDataNews = data
-//                    
-//                }
-//                cell.imageviewNews.image = image
-//                
-//                
-//            }
-//        }else{
-//            cell.imageviewNews.image = UIImage(data:(aNewsModel?.imageDataNews)!)
-//        }
-                    cell.imageviewNews.image = UIImage(named:"nytime")
+        cell.imageviewNews.image = UIImage(named:"nytime")
         cacheImage(stringURl: "\(Constant.RootServerImage)\((newsFeed?.imageUrl)!)") { (success,image ) in
             if success {
                 cell.imageviewNews.image = image
@@ -275,7 +253,7 @@ class ListNewsViewController: UIViewController,UICollectionViewDelegate,UICollec
         
     }
     
-    
+    //configure cell search
     func configureCell(_ cell: SearchCell, withSearch search: Search?,index:IndexPath) {
         
         cell.labelKeyword.text =  search?.keyword
@@ -299,9 +277,6 @@ class ListNewsViewController: UIViewController,UICollectionViewDelegate,UICollec
         
         fetchRequest.fetchBatchSize = 20
         fetchRequest.predicate = NSPredicate(format: "page <= \(page) AND isHeadline = true")
-        
-        
-        
         
         
         let sortDescriptor = NSSortDescriptor(key: "dateModified", ascending: false)
@@ -409,7 +384,7 @@ class ListNewsViewController: UIViewController,UICollectionViewDelegate,UICollec
         guard (keyword.characters.count) > 0 else {
             return
         }
-        searchFeed?.search(keyword: keyword, completion: { search in
+        searchFeed?.letSearch(keyword: keyword, completion: { search in
             if self.searchFeed?.search != search {
                 self.searchFeed?.cancelOperation()
                 self.searchFeed?.search = search
@@ -440,33 +415,5 @@ class ListNewsViewController: UIViewController,UICollectionViewDelegate,UICollec
         })
         
     }
-    func updateSection(section:IndexSet,type: NSFetchedResultsChangeType){
-        switch type {
-        case .insert:
-            collectionView.insertSections(section)
-        case .delete:
-            collectionView.deleteSections(section)
-        default:
-            return
-        }
-    }
-    func updateRow(oldIndexPath:IndexPath?,newIndexPath:IndexPath?,type: NSFetchedResultsChangeType){
-        if self.searchFeed?.isNews == true {
-            return
-        }
-        switch type {
-        case .insert:
-            collectionView.insertItems(at: [newIndexPath!])
-        case .delete:
-            
-            collectionView.deleteItems(at: [oldIndexPath!])
-        case .update:
-            
-            collectionView.reloadItems(at: [oldIndexPath!])
-            
-        case .move:
-            
-            collectionView.moveItem(at: oldIndexPath!, to: newIndexPath!)
-        }
-    }
+    
 }

@@ -8,10 +8,10 @@
 
 import Foundation
 import CoreData
-protocol SearchFreeModelDelegate {
+@objc protocol SearchFreeModelDelegate {
     func updateView()
-    func updateSection(section:IndexSet,type: NSFetchedResultsChangeType)
-    func updateRow(oldIndexPath:IndexPath?,newIndexPath:IndexPath?,type: NSFetchedResultsChangeType)
+     @objc optional func updateSection(section:IndexSet,type: NSFetchedResultsChangeType)
+     @objc optional func updateRow(oldIndexPath:IndexPath?,newIndexPath:IndexPath?,type: NSFetchedResultsChangeType)
 }
 class SearchFeedModel:NSObject,NSFetchedResultsControllerDelegate {
     var delegate:SearchFreeModelDelegate?
@@ -203,7 +203,7 @@ class SearchFeedModel:NSObject,NSFetchedResultsControllerDelegate {
         
         
     }
-    func search(keyword:String,completion: @escaping (_ search:Search) -> Void) {
+    public func letSearch(keyword:String,completion: @escaping (_ search:Search) -> Void) {
         if self.itemsSearch.count == 0 {
             self.itemsSearch = arrayAllSearch()!
         }

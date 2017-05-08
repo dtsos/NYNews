@@ -42,15 +42,7 @@ class DetailNewsViewController : UIViewController,UICollectionViewDelegate,UICol
         collectionView.scrollToItem(at: indexStart!, at: UICollectionViewScrollPosition(rawValue: 0), animated: true)
         
     }
-    //MARK: UICollectionViewDelegate
-    
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
-        
-    }
+   
     //MARK: UICollectionViewDataSource
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
@@ -74,22 +66,7 @@ class DetailNewsViewController : UIViewController,UICollectionViewDelegate,UICol
         
     }
     
-    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        let view =  collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionElementKindSectionHeader, withReuseIdentifier: "CellDetail", for: indexPath) as UIView
-        return view as! UICollectionReusableView
-    }
-    
-//    
-//    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-//       
-//        return CGSize(width: UIScreen.main.bounds.size.width - 20, height: self.view.bounds.size.height);
-//    }
-//    
-//    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
-//        
-//        return UIEdgeInsetsMake(0, 10, 0, 0)
-//    }
-
+ 
     
     
 }

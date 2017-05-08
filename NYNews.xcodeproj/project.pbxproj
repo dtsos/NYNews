@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		F253DAEA1EBF0563007066D9 /* DetailNewsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F253DAE91EBF0563007066D9 /* DetailNewsViewController.swift */; };
 		F2731EEA1EBCEC390041F79C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2731EE91EBCEC390041F79C /* AppDelegate.swift */; };
-		F2731EEC1EBCEC390041F79C /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2731EEB1EBCEC390041F79C /* ViewController.swift */; };
 		F2731EEF1EBCEC390041F79C /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F2731EED1EBCEC390041F79C /* Main.storyboard */; };
 		F2731EF41EBCEC390041F79C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F2731EF31EBCEC390041F79C /* Assets.xcassets */; };
 		F2731EF71EBCEC390041F79C /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F2731EF51EBCEC390041F79C /* LaunchScreen.storyboard */; };
@@ -21,6 +20,7 @@
 		F279B1D51EBD152700FF0E9C /* Constant.swift in Sources */ = {isa = PBXBuildFile; fileRef = F279B1D41EBD152700FF0E9C /* Constant.swift */; };
 		F279B1D71EBD2C3900FF0E9C /* SearchFeedModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F279B1D61EBD2C3900FF0E9C /* SearchFeedModel.swift */; };
 		F279B1D91EBD987E00FF0E9C /* ListNewsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F279B1D81EBD987E00FF0E9C /* ListNewsViewController.swift */; };
+		F2D804011EC014200002B8E7 /* SearchTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2D804001EC014200002B8E7 /* SearchTest.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -44,7 +44,6 @@
 		F253DAE91EBF0563007066D9 /* DetailNewsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DetailNewsViewController.swift; sourceTree = "<group>"; };
 		F2731EE61EBCEC390041F79C /* NYNews.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NYNews.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F2731EE91EBCEC390041F79C /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		F2731EEB1EBCEC390041F79C /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		F2731EEE1EBCEC390041F79C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		F2731EF31EBCEC390041F79C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		F2731EF61EBCEC390041F79C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -61,6 +60,7 @@
 		F279B1D41EBD152700FF0E9C /* Constant.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Constant.swift; sourceTree = "<group>"; };
 		F279B1D61EBD2C3900FF0E9C /* SearchFeedModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchFeedModel.swift; sourceTree = "<group>"; };
 		F279B1D81EBD987E00FF0E9C /* ListNewsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ListNewsViewController.swift; sourceTree = "<group>"; };
+		F2D804001EC014200002B8E7 /* SearchTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchTest.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -116,7 +116,6 @@
 				F2731F1B1EBCECEA0041F79C /* ViewModel */,
 				F2731F1A1EBCECB10041F79C /* Model */,
 				F2731EE91EBCEC390041F79C /* AppDelegate.swift */,
-				F2731EEB1EBCEC390041F79C /* ViewController.swift */,
 				F2731EED1EBCEC390041F79C /* Main.storyboard */,
 				F2731EF31EBCEC390041F79C /* Assets.xcassets */,
 				F2731EF51EBCEC390041F79C /* LaunchScreen.storyboard */,
@@ -130,6 +129,7 @@
 			children = (
 				F2731F011EBCEC390041F79C /* NYNewsTests.swift */,
 				F2731F031EBCEC390041F79C /* Info.plist */,
+				F2D804001EC014200002B8E7 /* SearchTest.swift */,
 			);
 			path = NYNewsTests;
 			sourceTree = "<group>";
@@ -318,7 +318,6 @@
 				F2731F201EBCED640041F79C /* NYNews.xcdatamodeld in Sources */,
 				F253DAEA1EBF0563007066D9 /* DetailNewsViewController.swift in Sources */,
 				F279B1D21EBD03C200FF0E9C /* Fetching.swift in Sources */,
-				F2731EEC1EBCEC390041F79C /* ViewController.swift in Sources */,
 				F2731EEA1EBCEC390041F79C /* AppDelegate.swift in Sources */,
 				F279B1D71EBD2C3900FF0E9C /* SearchFeedModel.swift in Sources */,
 				F279B1D31EBD03C200FF0E9C /* NewsFeedModel.swift in Sources */,
@@ -332,6 +331,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F2731F021EBCEC390041F79C /* NYNewsTests.swift in Sources */,
+				F2D804011EC014200002B8E7 /* SearchTest.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -475,6 +475,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_USE_OPTIMIZATION_PROFILE = YES;
 				DEVELOPMENT_TEAM = V252PUDY3X;
 				INFOPLIST_FILE = NYNews/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -488,6 +489,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_USE_OPTIMIZATION_PROFILE = YES;
 				DEVELOPMENT_TEAM = V252PUDY3X;
 				INFOPLIST_FILE = NYNews/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";

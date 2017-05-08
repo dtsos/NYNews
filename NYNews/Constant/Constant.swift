@@ -28,42 +28,6 @@ extension URLResponse {
     }
 }
 
-extension UIImageView {
-    
-   
-    func loadImageURL(_ url: URL?,placeholderImage:String,completionHandler:  @escaping (Bool,Data?,UIImage?) -> Swift.Void) {
-        
-        guard var imageComplete:UIImage = UIImage(named: placeholderImage) else{
-            fatalError()
-        }
-        
-        guard let url = url else {
-            completionHandler(false,nil,imageComplete)
-            return
-        }
-        
-        let urlRequest = URLRequest(url: url)
-        URLSession.shared.dataTask(with: urlRequest, completionHandler: { (data, response, error) -> Void in
-            
-            if let response = response, let data = data, response.isHTTPResponseValid() {
-                DispatchQueue.main.async(execute: { () -> Void in
-                    
-                    if UIImage(data: data) == nil {
-                        
-                        completionHandler(false,nil,imageComplete)
-                    } else {
-                        
-                        imageComplete = UIImage(data: data)!
-                        completionHandler(true,data,imageComplete)
-                    }
-                })
-            }else{
-                completionHandler(false,nil,imageComplete)
-            }
-        }) .resume()
-    }
-    
-}
 
 extension NSDate {
     func dateDiff() -> String? {
@@ -109,19 +73,12 @@ extension NSDate {
 
 extension UIScrollView {
     
-    var isAtTop: Bool {
-        return contentOffset.y <= verticalOffsetForTop
-    }
-    
+   
     var isAtBottom: Bool {
         return contentOffset.y >= verticalOffsetForBottom
     }
     
-    var verticalOffsetForTop: CGFloat {
-        let topInset = contentInset.top
-        return -topInset
-    }
-    
+   
     var verticalOffsetForBottom: CGFloat {
         let scrollViewHeight = bounds.height
         let scrollContentSizeHeight = contentSize.height

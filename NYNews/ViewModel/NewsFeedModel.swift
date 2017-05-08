@@ -81,23 +81,14 @@ class NewsModel {
         
         datePostDate()
         
-        
-        
-        
-        
-        
-        
-        
+              
     }
     var id:String? {
         willSet {
             self.news?.id = newValue
         }
     }
-    var imageDataNews:Data? =  nil
-    var imagePlaceholder:Data? =  nil
-    var imageDataProfile:Data? = nil
-    
+        
     var news:NewsFeed?
     var context:NSManagedObjectContext?
     
@@ -146,7 +137,7 @@ class NewsModel {
     }
     
     
-    
+    // create News Feed
     func createNewsFeed(){
         if news == nil {
             news = NewsFeed(context:self.context!)
@@ -158,18 +149,20 @@ class NewsModel {
         news?.snippet =  self.snippet ?? ""
         datePostDate()
     }
+//    convert string to date
     func datePostDate(){
         if self.date == nil {
             return
         }
-        let noaaDate = self.date
+        let stringDate = self.date
         let format="yyyy-MM-dd'T'HH:mm:ssZ"
         
         let dateFmt = DateFormatter()
         dateFmt.dateFormat = format
-        let newreadableDate = dateFmt.date(from: noaaDate!)
-        self.news?.pubDate = newreadableDate! as NSDate
-        
+        if let newreadableDate = dateFmt.date(from: stringDate!)
+        {
+        self.news?.pubDate = newreadableDate as NSDate
+        }
     }
     func saveCoreData(){
         self.news?.dateModified = NSDate()
@@ -181,28 +174,28 @@ class NewsModel {
         }
         
     }
+    
+    //save and create news feed to coredata
     func save(){
         createNewsFeed()
         saveCoreData()
     }
 }
 protocol NewsFeedProtocol {
-    func numberOfRows(inSection section: Int) -> Int
+    
     func checkServer(page:Int16,beginUpdateView: @escaping () -> Void,failed: @escaping () -> Void,completion: @escaping (_ page:Int16) -> Void)
 }
 class NewsFeedModel : NewsFeedProtocol {
-    func getNewsModel(index: Int) -> NewsModel? {
-        if  index > items.count - 1  {
-            return nil
-        }
-        return items[index]
-    }
+    var page:Int16
+    var stillDownload:Bool = false
     
-    private var items : [NewsModel] = [NewsModel]()
+    fileprivate var items : [NewsModel] = [NewsModel]()
     var context:NSManagedObjectContext?
     var fetchNewsController:NSFetchedResultsController<NewsFeed>?
-    //    var fetchSearchController:NSFetchedResultsController<Search>?
+    
     private let fetcher: Fetching
+    
+    
     init(fetcher: Fetching,fetchNewsController:NSFetchedResultsController<NewsFeed>){
         self.fetcher = fetcher
         self.fetchNewsController =  fetchNewsController
@@ -215,54 +208,22 @@ class NewsFeedModel : NewsFeedProtocol {
         self.page = -1
         
     }
-    func numberOfRows(inSection section: Int) -> Int {
-        return self.items.count
-    }
-    func checkArrayHaveUrl(_ url:String) -> (isFound :Bool,newsModel:NewsModel?){
-        guard  url.characters.count >= 0 else{
-            return (false,nil)
+    // get newsModel from array
+    func getNewsModel(index: Int) -> NewsModel? {
+        if  index > items.count - 1  {
+            return nil
         }
-        
-        if let i = self.items.index(where: { $0.url == url }) {
-            
-            return (true,self.items[i])
-        }        else {
-            //  not
-            
-            return (false,nil)
-        }
+        return items[index]
     }
     
-    //    var searchFeed:Search?
-    //    func findKeyword(_ keyword:String) -> (succes:Bool, search:Search?){
-    //        if self.searchFeed == nil {
-    //            return(false, nil)
-    //        }
-    //
-    //        self.fetchSearchController?.fetchRequest.predicate = NSPredicate(format: "keyword == %@", keyword)
-    //
-    //        do {
-    //            try self.fetchSearchController?.performFetch()
-    //        } catch{
-    //            return (false,nil)
-    //        }
-    //        guard (self.fetchSearchController?.fetchedObjects?.count)! > 0 else {
-    //            return (false,nil)
-    //        }
-    //        self.searchFeed = self.fetchSearchController?.fetchedObjects!.first
-    //        return(true , self.searchFeed)
-    //
-    //
-    //    }
-    var page:Int16
-    var stillDownload:Bool = false
     
+//    func numberOfRows(inSection section: Int) -> Int {
+//        return self.items.count
+//    }
+    // needUpdate compare array from coredata and from server if first NewsFeed on this page it will delete and insert list news for this page
     func isNeedUpdateServer(dictionary:[String:AnyObject]?,page:Int16 ) -> Bool {
         
         
-        //        if self.fe {
-        //            <#code#>
-        //        }
         if self.page != page {
             
             
@@ -274,7 +235,7 @@ class NewsFeedModel : NewsFeedProtocol {
                 try self.fetchNewsController?.performFetch()
             } catch {
                 print(error)
-                //                return true
+                
             }
         }
         
@@ -300,6 +261,8 @@ class NewsFeedModel : NewsFeedProtocol {
         
         
     }
+    
+    //check server if have different list news or is empty will insert new data
     func checkServer(page:Int16,beginUpdateView: @escaping () -> Void,failed: @escaping () -> Void,completion: @escaping (_ page:Int16) -> Void){
         if stillDownload == true  {
             
@@ -309,6 +272,7 @@ class NewsFeedModel : NewsFeedProtocol {
         let  stringQuery =  "\(Constant.URLArticleSearch)\(Constant.paramAPIKeyValue)&page=\(page)&sort=newest"
         fetcher.fetch(withQueryString: stringQuery, failure: { (error) in
             self.stillDownload =  false
+            failed()
         }) { (dictionary) in
             guard let response: [String:AnyObject] =  dictionary["response"] as? [String:AnyObject] else{
                 failed()

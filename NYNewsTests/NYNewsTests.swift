@@ -64,6 +64,9 @@ class NYNewsTests: XCTestCase {
         let storyboard =  UIStoryboard(name: storyboardName, bundle: nil)
         listNewsVC = storyboard.instantiateViewController(withIdentifier: ListNewsViewController.ID) as? ListNewsViewController
         newsFeedsModel =  NewsFeedModel.init(fetcher: self.fetcher!, fetchNewsController: fetchedResultsController)
+//        listNewsVC?.fetchedResultsController = fetchedResultsController
+        listNewsVC?.managedObjectContext = managedObjectContext
+        listNewsVC?.newsModel = newsFeedsModel
         
     }
     
@@ -74,32 +77,73 @@ class NYNewsTests: XCTestCase {
     }
     func releaseAll(){
         appDelegate = nil
+        newsFeedsModel = nil
         managedObjectContext = nil
         fetcher = nil
         listNewsVC =  nil
     }
+    
+    func testCreateNews() {
+        let aDictionary:[String:AnyObject] = ["web_url": "https://www.nytimes.com/aponline/2017/05/08/us/ap-us-mtv-movie-and-tv-awards.html" as AnyObject,
+                                              "snippet": "Snipppet" as AnyObject,
+                                              
+                                              
+                                              
+                                              "pub_date": "2017-05-08T04:24:44+0000" as AnyObject,
+                                              
+                                              "_id": "590ff3167c459f24986de3d5" as AnyObject]
+        let aNewsModel = NewsModel.init(fetcher: self.fetcher!, dictionary: aDictionary, context: self.managedObjectContext!)
+        aNewsModel.snippet = "newSnippet"
+        aNewsModel.url = "newURl"
+        aNewsModel.id = "newId"
+        aNewsModel.imageUrl = "newImageUrl"
+        aNewsModel.date = "newDate"
+        aNewsModel.title = "newDate"
+        XCTAssertEqual(aNewsModel.snippet, aNewsModel.news?.snippet,"Its must be Equal")
+        XCTAssertEqual(aNewsModel.url, aNewsModel.news?.url,"Its must be Equal")
+        XCTAssertEqual(aNewsModel.id, aNewsModel.news?.id,"Its must be Equal")
+        XCTAssertEqual(aNewsModel.imageUrl, aNewsModel.news?.imageUrl,"Its must be Equal")
+        XCTAssertEqual(aNewsModel.title, aNewsModel.news?.title,"Its must be Equal")
+        aNewsModel.createNewsFeed()
+        self.managedObjectContext?.delete(aNewsModel.news!)
+        aNewsModel.save()
+        
+    }
+    func testFetch(){
+        do {
+            try listNewsVC?.fetchedResultsController.performFetch()
+        } catch  {
+            XCTFail("Cannot connect")
+        }
+    }
+    func testPull() {
+        listNewsVC?.didPullToRefresh()
+        
+    }
     func testGetListViewModel(){
+        
         listNewsVC?.newsModel = newsFeedsModel
         
         XCTAssertTrue(listNewsVC?.newsModel?.getNewsModel(index: 0) != nil)
     }
-    //    func
-    func testExample() {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-    }
+
     
     func testCheckListAfterComplete() {
-        self.newsFeedsModel?.checkServer(page: 0, beginUpdateView: {
-            
+        let aPage = 10
+        self.newsFeedsModel?.checkServer(page: Int16(aPage), beginUpdateView: {
+            print("update")
         }, failed: {
+            print("failed")
             
         }, completion: { (page) in
-            let newsModel = self.newsFeedsModel?.getNewsModel(index: 0)
-            let newsFetch = self.fetchedResultsController.fetchedObjects?.first
+            let newsModel = self.newsFeedsModel?.getNewsModel(index: 2)
+            let newsFetch = self.fetchedResultsController.fetchedObjects?[2]
             XCTAssertTrue(newsFetch == newsModel?.news)
-            
+            XCTAssertEqual(newsFetch,newsModel?.news, "Its Equal")
+            XCTAssertEqual(aPage,Int(page),"it must be equal")
+        
         })
+        
         
     }
     
