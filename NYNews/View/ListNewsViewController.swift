@@ -181,6 +181,7 @@ class ListNewsViewController: UIViewController,UICollectionViewDelegate,UICollec
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if (searchFeed?.isNews)! || !searchController.isActive {
+            searchController.isActive = false
             let detailNewsVC = self.storyboard?.instantiateViewController(withIdentifier: "DetailNewsVC") as! DetailNewsViewController
             detailNewsVC.indexStart = indexPath
             detailNewsVC.arrayNews =  searchFeed?.isNews == true ?searchFeed?.list():self.fetchedResultsController.fetchedObjects

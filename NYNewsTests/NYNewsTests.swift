@@ -21,37 +21,37 @@ class NYNewsTests: XCTestCase {
     var fetcher:Fetching?
     
     var fetchedResultsController: NSFetchedResultsController<NewsFeed> {
-    if _fetchedResultsController != nil {
-    return _fetchedResultsController!
-    }
-    
-    let fetchRequest: NSFetchRequest<NewsFeed> = NewsFeed.fetchRequest()
-    
-    
-    fetchRequest.fetchBatchSize = 20
-    fetchRequest.predicate = NSPredicate(format: "page <= 0 AND isHeadline = true")
-    
-    
-    
-    
-    
-    let sortDescriptor = NSSortDescriptor(key: "dateModified", ascending: false)
-    
-    fetchRequest.sortDescriptors = [sortDescriptor]
-    
-    let aFetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: self.managedObjectContext!, sectionNameKeyPath: nil, cacheName:nil)
-    
-    _fetchedResultsController = aFetchedResultsController
-    
-    do {
-    try _fetchedResultsController!.performFetch()
-    } catch {
-    
-    let nserror = error as NSError
-    fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
-    }
-    
-    return _fetchedResultsController!
+        if _fetchedResultsController != nil {
+            return _fetchedResultsController!
+        }
+        
+        let fetchRequest: NSFetchRequest<NewsFeed> = NewsFeed.fetchRequest()
+        
+        
+        fetchRequest.fetchBatchSize = 20
+        fetchRequest.predicate = NSPredicate(format: "page <= 0 AND isHeadline = true")
+        
+        
+        
+        
+        
+        let sortDescriptor = NSSortDescriptor(key: "dateModified", ascending: false)
+        
+        fetchRequest.sortDescriptors = [sortDescriptor]
+        
+        let aFetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: self.managedObjectContext!, sectionNameKeyPath: nil, cacheName:nil)
+        
+        _fetchedResultsController = aFetchedResultsController
+        
+        do {
+            try _fetchedResultsController!.performFetch()
+        } catch {
+            
+            let nserror = error as NSError
+            fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
+        }
+        
+        return _fetchedResultsController!
     }
     
     var _fetchedResultsController: NSFetchedResultsController<NewsFeed>? = nil
@@ -83,23 +83,31 @@ class NYNewsTests: XCTestCase {
         
         XCTAssertTrue(listNewsVC?.newsModel?.getNewsModel(index: 0) != nil)
     }
-//    func 
+    //    func
     func testExample() {
         // This is an example of a functional test case.
         // Use XCTAssert and related functions to verify your tests produce the correct results.
+    }
+    
+    func testCheckListAfterComplete() {
+        self.newsFeedsModel?.checkServer(page: 0, beginUpdateView: {
+            
+        }, failed: {
+            
+        }, completion: { (page) in
+            let newsModel = self.newsFeedsModel?.getNewsModel(index: 0)
+            let newsFetch = self.fetchedResultsController.fetchedObjects?.first
+            XCTAssertTrue(newsFetch == newsModel?.news)
+            
+        })
+        
     }
     
     func testPerformanceExample() {
         // This is an example of a performance test case.
         self.measure {
             // Put the code you want to measure the time of here.
-            self.newsFeedsModel?.checkServer(page: 0, beginUpdateView: { 
-                
-            }, failed: { 
-                
-            }, completion: { (page) in
-                
-            })
+            self.testCheckListAfterComplete()
         }
     }
     
