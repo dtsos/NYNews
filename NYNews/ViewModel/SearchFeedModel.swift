@@ -67,7 +67,7 @@ class SearchFeedModel:NSObject,NSFetchedResultsControllerDelegate {
     // check server if item diffrent update
     func checkServer(page:Int16,search:Search,beginUpdateView: @escaping () -> Void,failed: @escaping () -> Void,completion: @escaping (_ page:Int16) -> Void){
         
-        if stillDownload == true  {
+        if stillDownload == true  && page > 0 {
             
             return
         }
@@ -94,6 +94,7 @@ class SearchFeedModel:NSObject,NSFetchedResultsControllerDelegate {
             
             let itemDictionaries: [[String:AnyObject]] = data
             if (itemDictionaries.count <= 0){
+                self.delegate?.updateView()
                 completion(page > 1 ? page - 1 :0)
                 return
             }

@@ -122,7 +122,7 @@ class ListNewsViewController: UIViewController,UICollectionViewDelegate,UICollec
         }else{
             if collectionView.numberOfItems(inSection: 0) != fetchedResultsController.fetchedObjects?.count {
                 DispatchQueue.main.async(execute: { () -> Void in
-                    self.collectionView.reloadData()
+//                    self.collectionView.reloadData()
                 })
             }
         }
@@ -225,18 +225,6 @@ class ListNewsViewController: UIViewController,UICollectionViewDelegate,UICollec
         }
     }
     
-//    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-//        if searchController.isActive && self.searchFeed?.isNews == false {
-//            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "CellSearch", for: indexPath)
-//            
-//            configureCell(cell as! SearchCell, withSearch: (searchFeed?.itemForRow(at: indexPath) as! Search), index: indexPath)
-//            return cell
-//        }else{
-//            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "CellNews", for: indexPath)
-//            configureCell(cell as! NewsCell, withFeed: searchController.isActive ?  (searchFeed?.itemForRow(at: indexPath) as! NewsFeed): self.fetchedResultsController.fetchedObjects?[indexPath.row],index:indexPath)
-//            return cell
-//        }
-//    }
     //configure Cell NewsFeed
     func configureCell(_ cell: NewsCell, withFeed newsFeed: NewsFeed?,index:IndexPath) {
         
@@ -319,20 +307,21 @@ class ListNewsViewController: UIViewController,UICollectionViewDelegate,UICollec
         if (self.searchController.isActive){
             
         }else{
-            switch type {
-            case .insert:
-                collectionView.insertItems(at: [newIndexPath!])
-            case .delete:
-                
-                collectionView.deleteItems(at: [indexPath!])
-            case .update:
-                
-                collectionView.reloadItems(at: [indexPath!])
-                
-            case .move:
-                
-                collectionView.moveItem(at: indexPath!, to: newIndexPath!)
-            }
+                                self.collectionView.reloadData()
+//            switch type {
+//            case .insert:
+//                collectionView.insertItems(at: [newIndexPath!])
+//            case .delete:
+//                
+//                collectionView.deleteItems(at: [indexPath!])
+//            case .update:
+//                
+//                collectionView.reloadItems(at: [indexPath!])
+//                
+//            case .move:
+//                
+//                collectionView.moveItem(at: indexPath!, to: newIndexPath!)
+//            }
         }
     }
     
@@ -348,8 +337,8 @@ class ListNewsViewController: UIViewController,UICollectionViewDelegate,UICollec
         return UIEdgeInsetsMake(0, 0, 0, 0)
     }
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-        
-        collectionView.performBatchUpdates(nil, completion: nil)
+        collectionView.reloadData()
+//        collectionView.performBatchUpdates(nil, completion: nil)
     }
     
     //delegate scrollview infinite scroll

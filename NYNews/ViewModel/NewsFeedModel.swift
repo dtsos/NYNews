@@ -56,6 +56,7 @@ class NewsModel {
         
         self.context =  context
         self.news =  NewsFeed(context:context)
+        self.save()
         self.id =  dictionary["_id"] as? String ?? ""
         if let headline = dictionary["headline"]{
             self.title = headline["main"] as? String ?? ""
@@ -105,7 +106,7 @@ class NewsModel {
     
     init(_ newsFeed:NewsFeed, context:NSManagedObjectContext,fetcher:Fetching) {
         self.news = newsFeed
-        
+        self.id =  self.news?.id
         self.title =  self.news?.title
         self.url =  self.news?.url
         self.date =  self.news?.date
@@ -142,6 +143,7 @@ class NewsModel {
         if news == nil {
             news = NewsFeed(context:self.context!)
         }
+        news?.id =  self.id ?? ""
         news?.title = self.title ?? ""
         news?.url = self.url ?? ""
         news?.imageUrl = self.imageUrl ?? ""
@@ -229,7 +231,9 @@ class NewsFeedModel : NewsFeedProtocol {
             
             self.fetchNewsController?.fetchRequest.predicate = NSPredicate(format: "page <= \(page) AND isHeadline = true")
             
+            let sortDescriptor = NSSortDescriptor(key: "dateModified", ascending: false)
             
+            self.fetchNewsController?.fetchRequest.sortDescriptors = [sortDescriptor]
             do {
                 NSFetchedResultsController<NewsFeed>.deleteCache(withName:nil)
                 try self.fetchNewsController?.performFetch()
@@ -318,6 +322,7 @@ class NewsFeedModel : NewsFeedProtocol {
                     
                     newsModel.news?.isHeadline = true
                     newsModel.news?.page = page
+                    newsModel.news?.dateModified = NSDate()
                     newsModel.save()
                     self.items.append(newsModel)
                     
