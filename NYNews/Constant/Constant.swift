@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 class Constant {
     static let RootServerSearch = "https://api.nytimes.com/svc/search/v2/"
-      static let RootServerImage = "https://www.nytimes.com/"
+    static let RootServerImage = "https://www.nytimes.com/"
     static let RootServerTopStories = "https://api.nytimes.com/svc/topstories/v2/"
     static let URLArticleSearch = "\(RootServerSearch)articlesearch.json?"
     static let URLTrending = "\(RootServerTopStories)home.json?"
@@ -26,6 +26,25 @@ extension URLResponse {
         
         return (response.statusCode >= 200 && response.statusCode <= 299)
     }
+    
+}
+extension URLSession {
+    func cancelOperation(stringUrl:String?)
+    {
+        if stringUrl != nil && (stringUrl?.characters.count)! > 0{
+            URLSession.shared.getTasksWithCompletionHandler { (dataStacks, uploadStacks, downloadStacks) in
+                for dataStack in dataStacks {
+                    
+                    if dataStack.originalRequest?.url?.absoluteString == stringUrl {
+                        dataStack.cancel()
+                        return
+                    }
+                    
+                }
+            }
+        }
+    }
+    
 }
 
 
@@ -60,12 +79,12 @@ extension NSDate {
             
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "EEE, dd MMM yyyy"
-//            dateFormatter.locale = Locale.init(identifier: "en_SG")
+            //            dateFormatter.locale = Locale.init(identifier: "en_SG")
             let stringDate = dateFormatter.string(from: self as Date)
             return stringDate
         }
-   
-    
+        
+        
     }
     
     
@@ -73,12 +92,12 @@ extension NSDate {
 
 extension UIScrollView {
     
-   
+    
     var isAtBottom: Bool {
         return contentOffset.y >= verticalOffsetForBottom
     }
     
-   
+    
     var verticalOffsetForBottom: CGFloat {
         let scrollViewHeight = bounds.height
         let scrollContentSizeHeight = contentSize.height

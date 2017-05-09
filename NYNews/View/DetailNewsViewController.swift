@@ -61,9 +61,12 @@ class DetailNewsViewController : UIViewController,UICollectionViewDelegate,UICol
     
     func configureCell(cell: DetailCell, forItemAt indexPath: IndexPath) {
         let newsFeed =  self.arrayNews?[indexPath.row]
-        let urlRequest = URLRequest(url:URL(string:(newsFeed?.url!)!)!)
-        cell.webview.loadRequest(urlRequest)
-        
+        if newsFeed?.url != nil {
+            let urlRequest = URLRequest(url:URL(string:(newsFeed?.url!)!)!)
+            cell.webview.loadRequest(urlRequest)
+            
+        }
+      
     }
     
  

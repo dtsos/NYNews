@@ -116,9 +116,7 @@
 				F2731F1B1EBCECEA0041F79C /* ViewModel */,
 				F2731F1A1EBCECB10041F79C /* Model */,
 				F2731EE91EBCEC390041F79C /* AppDelegate.swift */,
-				F2731EED1EBCEC390041F79C /* Main.storyboard */,
 				F2731EF31EBCEC390041F79C /* Assets.xcassets */,
-				F2731EF51EBCEC390041F79C /* LaunchScreen.storyboard */,
 				F2731EF81EBCEC390041F79C /* Info.plist */,
 			);
 			path = NYNews;
@@ -164,6 +162,8 @@
 		F2731F1C1EBCECFF0041F79C /* View */ = {
 			isa = PBXGroup;
 			children = (
+				F2731EF51EBCEC390041F79C /* LaunchScreen.storyboard */,
+				F2731EED1EBCEC390041F79C /* Main.storyboard */,
 				F279B1D81EBD987E00FF0E9C /* ListNewsViewController.swift */,
 				F253DAE91EBF0563007066D9 /* DetailNewsViewController.swift */,
 			);
@@ -365,6 +365,7 @@
 				F2731EEE1EBCEC390041F79C /* Base */,
 			);
 			name = Main.storyboard;
+			path = ..;
 			sourceTree = "<group>";
 		};
 		F2731EF51EBCEC390041F79C /* LaunchScreen.storyboard */ = {
@@ -373,6 +374,7 @@
 				F2731EF61EBCEC390041F79C /* Base */,
 			);
 			name = LaunchScreen.storyboard;
+			path = ..;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */

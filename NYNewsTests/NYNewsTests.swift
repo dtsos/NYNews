@@ -63,7 +63,7 @@ class NYNewsTests: XCTestCase {
         fetcher = Fetching()
         let storyboard =  UIStoryboard(name: storyboardName, bundle: nil)
         listNewsVC = storyboard.instantiateViewController(withIdentifier: ListNewsViewController.ID) as? ListNewsViewController
-        newsFeedsModel =  NewsFeedModel.init(fetcher: self.fetcher!, fetchNewsController: fetchedResultsController)
+        newsFeedsModel =  NewsFeedModel.init(fetcher: self.fetcher!,managedObjectContext: managedObjectContext!)
 //        listNewsVC?.fetchedResultsController = fetchedResultsController
         listNewsVC?.managedObjectContext = managedObjectContext
         listNewsVC?.newsModel = newsFeedsModel
@@ -109,13 +109,7 @@ class NYNewsTests: XCTestCase {
         aNewsModel.save()
         
     }
-    func testFetch(){
-        do {
-            try listNewsVC?.fetchedResultsController.performFetch()
-        } catch  {
-            XCTFail("Cannot connect")
-        }
-    }
+   
     func testPull() {
         listNewsVC?.didPullToRefresh()
         
@@ -123,23 +117,21 @@ class NYNewsTests: XCTestCase {
     func testGetListViewModel(){
         
         listNewsVC?.newsModel = newsFeedsModel
-        
-        XCTAssertTrue(listNewsVC?.newsModel?.getNewsModel(index: 0) != nil)
+        newsFeedsModel?.readyVC()
+        let indexPath:IndexPath =  IndexPath(row: 0, section: 0)
+        XCTAssertTrue(listNewsVC?.newsModel?.itemForRow(at: indexPath) != nil)
     }
 
     
     func testCheckListAfterComplete() {
         let aPage = 10
         self.newsFeedsModel?.checkServer(page: Int16(aPage), beginUpdateView: {
-            print("update")
+            debugPrint("update")
         }, failed: {
-            print("failed")
+            debugPrint("failed")
             
         }, completion: { (page) in
-            let newsModel = self.newsFeedsModel?.getNewsModel(index: 2)
-            let newsFetch = self.fetchedResultsController.fetchedObjects?[2]
-            XCTAssertTrue(newsFetch == newsModel?.news)
-            XCTAssertEqual(newsFetch,newsModel?.news, "Its Equal")
+
             XCTAssertEqual(aPage,Int(page),"it must be equal")
         
         })

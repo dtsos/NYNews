@@ -51,12 +51,6 @@ class NYNewsUITests: XCTestCase {
     
     func testSearch(){
         
-        
-        //        let app = XCUIApplication()
-        //        app.navigationBars["NY Times"].buttons["Search"].tap()
-        //        app.searchFields["Keyword"].typeText("ok")
-        //        app.typeText("e\r")
-        
         let app = XCUIApplication()
         app.navigationBars["NY Times"].buttons["Search"].tap()
         app.searchFields["Keyword"].typeText("Who ")

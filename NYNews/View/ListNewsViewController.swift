@@ -11,7 +11,7 @@ import CoreData
 
 class SearchCell : UICollectionViewCell {
     @IBOutlet weak var labelKeyword: UILabel!
- 
+    
     
 }
 class NewsCell : UICollectionViewCell {
@@ -36,7 +36,7 @@ class NewsCell : UICollectionViewCell {
     }
     
 }
-class ListNewsViewController: UIViewController,UICollectionViewDelegate,UICollectionViewDataSource,NSFetchedResultsControllerDelegate,UISearchBarDelegate,UISearchControllerDelegate,UICollectionViewDelegateFlowLayout,UISearchResultsUpdating,SearchFreeModelDelegate {
+class ListNewsViewController: UIViewController,UICollectionViewDelegate,UICollectionViewDataSource,NSFetchedResultsControllerDelegate,UISearchBarDelegate,UISearchControllerDelegate,UICollectionViewDelegateFlowLayout,UISearchResultsUpdating,SearchFeedModelDelegate,NewsFeedDelegate {
     
     static let ID = "ListNewsVC"
     let searchController = UISearchController(searchResultsController: nil)
@@ -44,7 +44,7 @@ class ListNewsViewController: UIViewController,UICollectionViewDelegate,UICollec
     @IBOutlet weak var collectionView: UICollectionView!
     var stringKeyword:String = ""
     
-    /// Secondary search results table view.
+    var managedObjectContext: NSManagedObjectContext? = nil
     
     var searchFeed:SearchFeedModel?
     
@@ -76,7 +76,7 @@ class ListNewsViewController: UIViewController,UICollectionViewDelegate,UICollec
         layout.minimumInteritemSpacing = 10.0
         collectionView.setCollectionViewLayout(layout, animated: true)
         
-        newsModel = NewsFeedModel.init(fetcher: self.fetcher, fetchNewsController: self.fetchedResultsController)
+        newsModel = NewsFeedModel.init(fetcher: self.fetcher, managedObjectContext: self.managedObjectContext!)
         
         refreshControl.addTarget(self, action: #selector(didPullToRefresh), for: .valueChanged)
         collectionView.refreshControl =  refreshControl
@@ -86,8 +86,9 @@ class ListNewsViewController: UIViewController,UICollectionViewDelegate,UICollec
         refreshControl.beginRefreshing()
         
         newsModel?.checkServer(page: self.page,beginUpdateView: update, failed: failed, completion: completion)
+        newsModel?.delegate = self
         
-        
+        newsModel?.readyVC()
         searchFeed =  SearchFeedModel.init(fetching: self.fetcher, managedContext: self.managedObjectContext!)
         searchFeed?.delegate = self
         
@@ -117,22 +118,18 @@ class ListNewsViewController: UIViewController,UICollectionViewDelegate,UICollec
         
     }
     private func update() {
-        if(self.searchController.isActive){
-            
-        }else{
-            if collectionView.numberOfItems(inSection: 0) != fetchedResultsController.fetchedObjects?.count {
-                DispatchQueue.main.async(execute: { () -> Void in
-//                    self.collectionView.reloadData()
-                })
-            }
-        }
+        debugPrint("Update")
     }
     private func failed() {
+        debugPrint("failed")
     }
     private func completion(_ page:Int16) {
         self.page = page
-        
-        refreshControl.endRefreshing()
+        if self.refreshControl.isRefreshing == true {
+            DispatchQueue.main.async(execute: { () -> Void in
+            self.refreshControl.endRefreshing()
+            })
+        }
         
     }
     
@@ -182,7 +179,7 @@ class ListNewsViewController: UIViewController,UICollectionViewDelegate,UICollec
             searchController.isActive = false
             let detailNewsVC = self.storyboard?.instantiateViewController(withIdentifier: "DetailNewsVC") as! DetailNewsViewController
             detailNewsVC.indexStart = indexPath
-            detailNewsVC.arrayNews =  searchFeed?.isNews == true ?searchFeed?.list():self.fetchedResultsController.fetchedObjects
+            detailNewsVC.arrayNews =  searchFeed?.isNews == true ?searchFeed?.list():self.newsModel?.list()
             self.navigationController?.pushViewController(detailNewsVC, animated: true)
             
         }else{
@@ -191,7 +188,7 @@ class ListNewsViewController: UIViewController,UICollectionViewDelegate,UICollec
         }
     }
     
-   
+    
     //MARK: UICollectionViewDataSource
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
@@ -199,15 +196,15 @@ class ListNewsViewController: UIViewController,UICollectionViewDelegate,UICollec
             
             return (searchFeed?.numberOfSections())!
         }
-        return _fetchedResultsController!.sections?.count ?? 0
+        return (newsModel?.numberOfSections())!
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if searchController.isActive {
             return (searchFeed?.numberOfRows(inSection: section))!
         }
-        let sectionInfo = fetchedResultsController.sections![section]
-        return sectionInfo.numberOfObjects
+        
+        return (newsModel?.numberOfRows(inSection: section))!
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -219,7 +216,8 @@ class ListNewsViewController: UIViewController,UICollectionViewDelegate,UICollec
             return cell
         }else{
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "CellNews", for: indexPath)
-            configureCell(cell as! NewsCell, withFeed: searchController.isActive ?  (searchFeed?.itemForRow(at: indexPath) as! NewsFeed): self.fetchedResultsController.fetchedObjects?[indexPath.row],index:indexPath)
+            let newsFeed = searchController.isActive ?  (searchFeed?.itemForRow(at: indexPath) as! NewsFeed): (newsModel?.itemForRow(at: indexPath))!
+            configureCell(cell as! NewsCell, withFeed: newsFeed,index:indexPath)
             
             return cell
         }
@@ -232,11 +230,14 @@ class ListNewsViewController: UIViewController,UICollectionViewDelegate,UICollec
         cell.labelTime.text =  newsFeed?.pubDate?.dateDiff()
         cell.labelMessage.text =  newsFeed?.snippet
         cell.imageviewNews.image = UIImage(named:"nytime")
-        cacheImage(stringURl: "\(Constant.RootServerImage)\((newsFeed?.imageUrl)!)") { (success,image ) in
-            if success {
-                cell.imageviewNews.image = image
+        if newsFeed?.imageUrl != nil {
+            cacheImage(stringURl: "\(Constant.RootServerImage)\((newsFeed?.imageUrl)!)") { (success,image ) in
+                if success {
+                    cell.imageviewNews.image = image
+                }
             }
         }
+        
         
         
     }
@@ -250,80 +251,7 @@ class ListNewsViewController: UIViewController,UICollectionViewDelegate,UICollec
         
     }
     //    NSFetch
-    var managedObjectContext: NSManagedObjectContext? = nil
     
-    
-    
-    
-    var fetchedResultsController: NSFetchedResultsController<NewsFeed> {
-        if _fetchedResultsController != nil {
-            return _fetchedResultsController!
-        }
-        
-        let fetchRequest: NSFetchRequest<NewsFeed> = NewsFeed.fetchRequest()
-        
-        
-        fetchRequest.fetchBatchSize = 20
-        fetchRequest.predicate = NSPredicate(format: "page <= \(page) AND isHeadline = true")
-        
-        
-        let sortDescriptor = NSSortDescriptor(key: "dateModified", ascending: false)
-        
-        fetchRequest.sortDescriptors = [sortDescriptor]
-        
-        let aFetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: self.managedObjectContext!, sectionNameKeyPath: nil, cacheName:nil)
-        aFetchedResultsController.delegate = self
-        _fetchedResultsController = aFetchedResultsController
-        
-        do {
-            try _fetchedResultsController!.performFetch()
-        } catch {
-            
-            let nserror = error as NSError
-            fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
-        }
-        
-        return _fetchedResultsController!
-    }
-    
-    var _fetchedResultsController: NSFetchedResultsController<NewsFeed>? = nil
-    
-    func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-    }
-    
-    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange sectionInfo: NSFetchedResultsSectionInfo, atSectionIndex sectionIndex: Int, for type: NSFetchedResultsChangeType) {
-        switch type {
-        case .insert:
-            collectionView.insertSections(IndexSet(integer: sectionIndex))
-        case .delete:
-            collectionView.deleteSections(IndexSet(integer: sectionIndex))
-        default:
-            return
-        }
-    }
-    
-    
-    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
-        if (self.searchController.isActive){
-            
-        }else{
-                                self.collectionView.reloadData()
-//            switch type {
-//            case .insert:
-//                collectionView.insertItems(at: [newIndexPath!])
-//            case .delete:
-//                
-//                collectionView.deleteItems(at: [indexPath!])
-//            case .update:
-//                
-//                collectionView.reloadItems(at: [indexPath!])
-//                
-//            case .move:
-//                
-//                collectionView.moveItem(at: indexPath!, to: newIndexPath!)
-//            }
-        }
-    }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         if searchController.isActive && !(searchFeed?.isNews)! {
@@ -336,10 +264,7 @@ class ListNewsViewController: UIViewController,UICollectionViewDelegate,UICollec
         
         return UIEdgeInsetsMake(0, 0, 0, 0)
     }
-    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-        collectionView.reloadData()
-//        collectionView.performBatchUpdates(nil, completion: nil)
-    }
+    
     
     //delegate scrollview infinite scroll
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
@@ -357,6 +282,7 @@ class ListNewsViewController: UIViewController,UICollectionViewDelegate,UICollec
     //search
     
     @IBAction func actionSearch(_ sender: UIBarButtonItem) {
+        newsModel?.cancelOperation()
         searchFeed?.checkCoreData()
         searchController.searchResultsUpdater = self
         searchController.searchBar.delegate = self
@@ -364,7 +290,10 @@ class ListNewsViewController: UIViewController,UICollectionViewDelegate,UICollec
         self.present(searchController, animated: true, completion: nil)
     }
     func updateSearchResults(for searchController: UISearchController) {
-        
+        if searchController.searchBar.text?.characters.count == 0 {
+            searchFeed?.isNews = false
+            searchFeed?.checkCoreData()
+        }
     }
     
     func search(keyword:String)  {
@@ -376,8 +305,9 @@ class ListNewsViewController: UIViewController,UICollectionViewDelegate,UICollec
         searchFeed?.letSearch(keyword: keyword, completion: { search in
             if self.searchFeed?.search != search {
                 self.searchFeed?.cancelOperation()
-                self.searchFeed?.search = search
                 
+                self.searchFeed?.search = search
+                self.searchFeed?.createListNews()
                 self.searchFeed?.checkServer(page: 0, search: search, beginUpdateView: self.update, failed: self.failed, completion: self.completion)
             }
         })
@@ -401,6 +331,15 @@ class ListNewsViewController: UIViewController,UICollectionViewDelegate,UICollec
         DispatchQueue.main.async(execute: { () -> Void in
             self.collectionView.reloadData()
             
+        })
+        
+    }
+    
+    func updateListNewsView(){
+        
+        DispatchQueue.main.async(execute: { () -> Void in
+            self.collectionView.reloadData()
+            //            self.collectionView.performBatchUpdates(nil, completion: nil)
         })
         
     }

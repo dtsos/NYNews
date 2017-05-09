@@ -8,13 +8,13 @@
 
 import Foundation
 import CoreData
-@objc protocol SearchFreeModelDelegate {
+@objc protocol SearchFeedModelDelegate {
     func updateView()
-     @objc optional func updateSection(section:IndexSet,type: NSFetchedResultsChangeType)
-     @objc optional func updateRow(oldIndexPath:IndexPath?,newIndexPath:IndexPath?,type: NSFetchedResultsChangeType)
+    @objc optional func updateSection(section:IndexSet,type: NSFetchedResultsChangeType)
+    @objc optional func updateRow(oldIndexPath:IndexPath?,newIndexPath:IndexPath?,type: NSFetchedResultsChangeType)
 }
-class SearchFeedModel:NSObject,NSFetchedResultsControllerDelegate {
-    var delegate:SearchFreeModelDelegate?
+class SearchFeedModel:NSObject {
+    var delegate:SearchFeedModelDelegate?
     fileprivate var itemsNewsFeed:[NewsFeed] = [NewsFeed]()
     fileprivate var itemsSearch:[Search] =  [Search]()
     var search:Search?
@@ -63,7 +63,11 @@ class SearchFeedModel:NSObject,NSFetchedResultsControllerDelegate {
         
         
     }
-    
+    func createListNews(){
+        let arrayAllNews: [NewsFeed] = self.search!.listNews?.allObjects as! [NewsFeed]
+        let arrayNews = arrayAllNews.filter{ ($0 as NewsFeed).page == 0 }
+        self.itemsNewsFeed.append(contentsOf: arrayNews )
+    }
     // check server if item diffrent update
     func checkServer(page:Int16,search:Search,beginUpdateView: @escaping () -> Void,failed: @escaping () -> Void,completion: @escaping (_ page:Int16) -> Void){
         
@@ -93,59 +97,68 @@ class SearchFeedModel:NSObject,NSFetchedResultsControllerDelegate {
             
             
             let itemDictionaries: [[String:AnyObject]] = data
-            if (itemDictionaries.count <= 0){
-                self.delegate?.updateView()
-                completion(page > 1 ? page - 1 :0)
-                return
-            }
-            if self.isNeedUpdateServer(dictionary: itemDictionaries.first!, page: page){
+//            if (itemDictionaries.count <= 0){
+//                let arrayAllNews: [NewsFeed] = search.listNews?.allObjects as! [NewsFeed]
+//                let arrayNews = arrayAllNews.filter{ ($0 as NewsFeed).page == page }
+//                self.itemsNewsFeed.append(contentsOf: arrayNews )
+//                self.delegate?.updateView()
+//            
+//                debugPrint(search.listNews!)
+//                completion(page > 1 ? page - 1 :0)
+//                return
+//            }
+            let dictListnews:[String:AnyObject]? =  (itemDictionaries.count >= 1 ?  itemDictionaries.first : nil )
+            
+            if self.isNeedUpdateServer(dictionary:dictListnews, page: page) || itemDictionaries.count == 0{
                 beginUpdateView()
                 
                 var items:[NewsFeed] = search.listNews?.allObjects as! [NewsFeed]
-               items = items.sorted(by: {$0.dateModified?.compare(($1.dateModified as Date?)!) == ComparisonResult.orderedDescending})
+                items = items.sorted(by: {$0.dateModified?.compare(($1.dateModified as Date?)!) == ComparisonResult.orderedDescending})
                 items = items.filter({$0.page == page})
                 let indexStart = 0
+                
                 if indexStart < (items.count) {
-                    
-                    for i in indexStart..<items.count{
-                        //                for aNewsFeed in items! {
-                        
-                        let aNewsFeed:NewsFeed = items[i]
-                        self.managedObjectContext?.delete(aNewsFeed)
-                        
-                        do {
-                            try self.managedObjectContext?.save()
-                        }catch{
-                            print(error)
+                    self.managedObjectContext?.performAndWait {
+                        for i in indexStart..<items.count{
+                            //                for aNewsFeed in items! {
+                            
+                            let aNewsFeed:NewsFeed = items[i]
+                            self.managedObjectContext?.delete(aNewsFeed)
+                            
+                            do {
+                                try self.managedObjectContext?.save()
+                            }catch{
+                                debugPrint(error)
+                            }
                         }
                     }
-                    
                 }
                 if page == 0{
                     self.itemsNewsFeed.removeAll()
                 }
-                for aData in itemDictionaries {
-                    
-                    let newsModel =  NewsModel.init(fetcher: self.fetcher,  dictionary: aData,search:search, context: self.managedObjectContext!)
-                    
-                    newsModel.news?.isHeadline = false
-                    newsModel.news?.page = page
-                    newsModel.news?.whichSearch = search
-                    newsModel.news?.dateModified = NSDate()
-                    //                    search.add(newsModel)
-                    
-                    newsModel.save()
-                    
-                    self.itemsNewsFeed.append(newsModel.news!)
-                    
-                    
-                    
+                self.managedObjectContext?.performAndWait {
+                    for aData in itemDictionaries {
+                        
+                        let newsModel =  NewsModel.init(fetcher: self.fetcher,  dictionary: aData,search:search, context: self.managedObjectContext!)
+                        
+                        newsModel.news?.isHeadline = false
+                        newsModel.news?.page = page
+                        newsModel.news?.whichSearch = search
+                        newsModel.news?.dateModified = NSDate()
+                        //                    search.add(newsModel)
+                        
+                        newsModel.save()
+                        
+                        self.itemsNewsFeed.append(newsModel.news!)
+                        
+                        
+                    }
                 }
             }else{
                 let arrayAllNews: [NewsFeed] = search.listNews?.allObjects as! [NewsFeed]
                 let arrayNews = arrayAllNews.filter{ ($0 as NewsFeed).page == page }
                 self.itemsNewsFeed.append(contentsOf: arrayNews )
-
+                
             }
             self.page = page
             self.delegate?.updateView()
@@ -154,21 +167,17 @@ class SearchFeedModel:NSObject,NSFetchedResultsControllerDelegate {
         }
         
     }
+    
+    //string url last fetch server
     var lastStringQuery:String?
+    
+    //cancel connection
     func cancelOperation()
     {
-        URLSession.shared.getTasksWithCompletionHandler { (dataStacks, uploadStacks, downloadStacks) in
-            for dataStack in dataStacks {
-                if self.lastStringQuery != nil {
-                    if dataStack.originalRequest?.url?.absoluteString == self.lastStringQuery {
-                dataStack.cancel()
-                        return
-                    }
-                }
-            }
-        }
+        URLSession.shared.cancelOperation(stringUrl: lastStringQuery)
     }
     
+    //create new search
     func createNewSearch(keyword:String) -> Search?{
         let search:Search = Search(context:self.managedObjectContext!)
         search.keyword = keyword
@@ -180,9 +189,11 @@ class SearchFeedModel:NSObject,NSFetchedResultsControllerDelegate {
         }
         return search
     }
+    
+    //get list search
     func arrayAllSearch() -> [Search]? {
         let fetchRequest : NSFetchRequest<Search> = Search.fetchRequest()
-        let sortDescriptor = NSSortDescriptor(key: "date", ascending: false) 
+        let sortDescriptor = NSSortDescriptor(key: "date", ascending: false)
         
         fetchRequest.sortDescriptors = [sortDescriptor]
         
@@ -197,6 +208,8 @@ class SearchFeedModel:NSObject,NSFetchedResultsControllerDelegate {
         return result
         
     }
+    
+    // move array search to index
     func rearrange<T>(array: inout Array<T>, fromIndex: Int, toIndex: Int){
         
         let element = array.remove(at: fromIndex)
@@ -204,6 +217,8 @@ class SearchFeedModel:NSObject,NSFetchedResultsControllerDelegate {
         
         
     }
+    
+    //search newsfeed
     public func letSearch(keyword:String,completion: @escaping (_ search:Search) -> Void) {
         if self.itemsSearch.count == 0 {
             self.itemsSearch = arrayAllSearch()!
@@ -261,12 +276,8 @@ class SearchFeedModel:NSObject,NSFetchedResultsControllerDelegate {
     
     //    fetch search
     func checkCoreData(){
-        //        if self.itemsSearch.count == 0 {
+        
         self.itemsSearch =  arrayAllSearch()!
-        
-        
-        
-        //        }
         delegate?.updateView()
     }
     

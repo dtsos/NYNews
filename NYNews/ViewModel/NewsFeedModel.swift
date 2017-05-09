@@ -56,7 +56,7 @@ class NewsModel {
         
         self.context =  context
         self.news =  NewsFeed(context:context)
-        self.save()
+        
         self.id =  dictionary["_id"] as? String ?? ""
         if let headline = dictionary["headline"]{
             self.title = headline["main"] as? String ?? ""
@@ -82,14 +82,15 @@ class NewsModel {
         
         datePostDate()
         
-              
+        
+        
     }
     var id:String? {
         willSet {
             self.news?.id = newValue
         }
     }
-        
+    
     var news:NewsFeed?
     var context:NSManagedObjectContext?
     
@@ -104,18 +105,18 @@ class NewsModel {
         }
     }
     
-    init(_ newsFeed:NewsFeed, context:NSManagedObjectContext,fetcher:Fetching) {
-        self.news = newsFeed
-        self.id =  self.news?.id
-        self.title =  self.news?.title
-        self.url =  self.news?.url
-        self.date =  self.news?.date
-        self.imageUrl = self.news?.imageUrl
-        self.snippet  = self.news?.snippet
-        
-        self.context = context
-        self.fetcher = fetcher
-    }
+    //    init(_ newsFeed:NewsFeed, context:NSManagedObjectContext,fetcher:Fetching) {
+    //        self.news = newsFeed
+    //        self.id =  self.news?.id
+    //        self.title =  self.news?.title
+    //        self.url =  self.news?.url
+    //        self.date =  self.news?.date
+    //        self.imageUrl = self.news?.imageUrl
+    //        self.snippet  = self.news?.snippet
+    //
+    //        self.context = context
+    //        self.fetcher = fetcher
+    //    }
     
     
     
@@ -151,7 +152,7 @@ class NewsModel {
         news?.snippet =  self.snippet ?? ""
         datePostDate()
     }
-//    convert string to date
+    //    convert string to date
     func datePostDate(){
         if self.date == nil {
             return
@@ -161,9 +162,9 @@ class NewsModel {
         
         let dateFmt = DateFormatter()
         dateFmt.dateFormat = format
-        if let newreadableDate = dateFmt.date(from: stringDate!)
-        {
-        self.news?.pubDate = newreadableDate as NSDate
+        let newreadableDate = dateFmt.date(from: stringDate!)
+        if newreadableDate != nil{
+            self.news?.pubDate = newreadableDate! as NSDate
         }
     }
     func saveCoreData(){
@@ -183,88 +184,107 @@ class NewsModel {
         saveCoreData()
     }
 }
-protocol NewsFeedProtocol {
+protocol NewsFeedDelegate {
+    func updateListNewsView()
     
-    func checkServer(page:Int16,beginUpdateView: @escaping () -> Void,failed: @escaping () -> Void,completion: @escaping (_ page:Int16) -> Void)
 }
-class NewsFeedModel : NewsFeedProtocol {
+class NewsFeedModel : NSObject {
+    var delegate:NewsFeedDelegate?
     var page:Int16
     var stillDownload:Bool = false
     
-    fileprivate var items : [NewsModel] = [NewsModel]()
+    fileprivate var items : [NewsFeed] = [NewsFeed]()
     var context:NSManagedObjectContext?
-    var fetchNewsController:NSFetchedResultsController<NewsFeed>?
+    
     
     private let fetcher: Fetching
     
     
-    init(fetcher: Fetching,fetchNewsController:NSFetchedResultsController<NewsFeed>){
+    init(fetcher: Fetching,managedObjectContext:NSManagedObjectContext){
         self.fetcher = fetcher
-        self.fetchNewsController =  fetchNewsController
-        self.context = fetchNewsController.managedObjectContext
-        for aNewsFeed in (self.fetchNewsController?.fetchedObjects)! {
-            let newsModel:NewsModel = NewsModel.init(aNewsFeed, context:self.context!,fetcher:fetcher)
-            
-            self.items.append(newsModel)
-        }
-        self.page = -1
+        
+        self.context = managedObjectContext
+        
+        self.page = 0
         
     }
-    // get newsModel from array
-    func getNewsModel(index: Int) -> NewsModel? {
-        if  index > items.count - 1  {
+    
+    //    private get array
+    @objc private func getArray(){
+        
+        self.items = listNews(page: self.page)!
+    }
+    func listNews(page:Int16) -> [NewsFeed]?{
+        
+        let fetchRequest : NSFetchRequest<NewsFeed> = NewsFeed.fetchRequest()
+        let sortDescriptor = NSSortDescriptor(key: "dateModified", ascending: false)
+        
+        fetchRequest.predicate = NSPredicate(format: "page = \(page) AND isHeadline = true")
+        fetchRequest.sortDescriptors = [sortDescriptor]
+        
+        var result :[NewsFeed]?
+        do {
+            result = try self.context?.fetch(fetchRequest)
+        } catch {
             return nil
         }
-        return items[index]
+        
+        return result!
     }
     
+    // inital array list items
+    func readyVC() {
+        getArray()
+    }
     
-//    func numberOfRows(inSection section: Int) -> Int {
-//        return self.items.count
-//    }
     // needUpdate compare array from coredata and from server if first NewsFeed on this page it will delete and insert list news for this page
-    func isNeedUpdateServer(dictionary:[String:AnyObject]?,page:Int16 ) -> Bool {
-        
-        
-        if self.page != page {
-            
-            
-            self.fetchNewsController?.fetchRequest.predicate = NSPredicate(format: "page <= \(page) AND isHeadline = true")
-            
-            let sortDescriptor = NSSortDescriptor(key: "dateModified", ascending: false)
-            
-            self.fetchNewsController?.fetchRequest.sortDescriptors = [sortDescriptor]
-            do {
-                NSFetchedResultsController<NewsFeed>.deleteCache(withName:nil)
-                try self.fetchNewsController?.performFetch()
-            } catch {
-                print(error)
-                
-            }
+    func isNeedUpdateServer(dictionary:[String:AnyObject]?,page:Int16 ) -> (update: Bool, items: [NewsFeed]?) {
+        var tempitems:[NewsFeed]? = [NewsFeed]()
+        if dictionary == nil {
+            tempitems = listNews(page: page)!
+            return (true, tempitems)
         }
         
-        let tempitems:[NewsFeed] = (self.fetchNewsController?.fetchedObjects)!
-        if tempitems.count == 0 {
-            return true
+        if self.page != page {
+            tempitems = listNews(page: page)!
+            
+            
+        }else{
+            
+        }
+        
+        
+        if tempitems?.count == 0 {
+            return (true, tempitems)
         }else{
             let index = Int(10 * page)
-            if index >= tempitems.count{
-                return true
+            if index >= (tempitems?.count)!{
+                return (true, tempitems)
             }
             if  dictionary != nil {
                 
                 
-                let firstNews:NewsFeed = tempitems[index]
+                let firstNews:NewsFeed = tempitems![index]
                 let id:String = dictionary!["_id"] as! String
                 if  firstNews.id != id{
-                    return true
+                    return (true,tempitems)
                 }
             }
         }
-        return false
+        return (false, tempitems)
         
         
     }
+    
+    //last fetch server string url
+    var lastStringQuery:String?
+    
+    //cancel operation
+    func cancelOperation()
+    {
+        URLSession.shared.cancelOperation(stringUrl: lastStringQuery)
+    }
+    
     
     //check server if have different list news or is empty will insert new data
     func checkServer(page:Int16,beginUpdateView: @escaping () -> Void,failed: @escaping () -> Void,completion: @escaping (_ page:Int16) -> Void){
@@ -273,8 +293,8 @@ class NewsFeedModel : NewsFeedProtocol {
             return
         }
         stillDownload = true
-        let  stringQuery =  "\(Constant.URLArticleSearch)\(Constant.paramAPIKeyValue)&page=\(page)&sort=newest"
-        fetcher.fetch(withQueryString: stringQuery, failure: { (error) in
+        lastStringQuery =  "\(Constant.URLArticleSearch)\(Constant.paramAPIKeyValue)&page=\(page)&sort=newest"
+        fetcher.fetch(withQueryString: lastStringQuery!, failure: { (error) in
             self.stillDownload =  false
             failed()
         }) { (dictionary) in
@@ -290,51 +310,92 @@ class NewsFeedModel : NewsFeedProtocol {
             }
             
             let itemDictionaries: [[String:AnyObject]] = data
-            if (itemDictionaries.count <= 0){
-                completion(page > 1 ? page - 1 :0)
-                return
-            }
-            if self.isNeedUpdateServer(dictionary: itemDictionaries.first!, page: page){
+            
+            
+            let checkUpdate =  self.isNeedUpdateServer(dictionary: itemDictionaries.first, page: page)
+            
+            if checkUpdate.update == true{
                 beginUpdateView()
-                let items = self.fetchNewsController?.fetchedObjects
-                let indexStart = Int(page*10)
-                if indexStart < (items?.count)! {
-                    
-                    for i in indexStart..<(items?.count)!{
-                        
-                        if let aNewsFeed:NewsFeed? = items?[i] {
-                            self.context?.delete(aNewsFeed!)
+                let items = checkUpdate.items
+                let indexStart = 0
+                //                debugPrint(items)
+                if items != nil {
+                    if  (indexStart < (items?.count)!) {
+                        self.context?.performAndWait {
                             
-                            do {
-                                try self.context?.save()
-                            }catch{
-                                print(error)
+                            
+                            for i in indexStart..<(items?.count)!{
+                                let aNewsFeed:NewsFeed? = items?[i]
+                                if aNewsFeed != nil {
+                                    
+                                    self.context?.delete(aNewsFeed!)
+                                    
+                                    do {
+                                        //                                        self.context?.refreshAllObjects()
+                                        try self.context?.save()
+                                    }catch{
+                                        debugPrint(error)
+                                    }
+                                }
                             }
                         }
                     }
                 }
                 if page == 0{
+                    
                     self.items.removeAll()
-                }
-                for aData in itemDictionaries {
-                    
-                    let newsModel =  NewsModel.init(fetcher: self.fetcher,  dictionary: aData, context: self.context!)
-                    
-                    newsModel.news?.isHeadline = true
-                    newsModel.news?.page = page
-                    newsModel.news?.dateModified = NSDate()
-                    newsModel.save()
-                    self.items.append(newsModel)
-                    
-                    
                     
                 }
+                self.context?.performAndWait {
+                    for aData in itemDictionaries {
+                        
+                        let newsModel =  NewsModel.init(fetcher: self.fetcher,  dictionary: aData, context: self.context!)
+                        
+                        newsModel.news?.isHeadline = true
+                        newsModel.news?.page = page
+                        newsModel.news?.dateModified = NSDate()
+                        newsModel.save()
+                        debugPrint(newsModel.news!)
+                        let news = newsModel.news!
+                        self.items.append(news)
+                        
+                        
+                        
+                    }
+                    
+                }
+            }else{
+                let arrayNews:[NewsFeed] =  checkUpdate.items!
+                self.items.append(contentsOf: arrayNews)
             }
+            
             self.page = page
+            self.delegate?.updateListNewsView()
             completion(page)
             self.stillDownload = false
         }
         
+    }
+    func numberOfSections() -> Int {
+        
+        return 1
+        
+        
+    }
+    
+    func numberOfRows(inSection section: Int) -> Int {
+        return self.items.count
+    }
+    
+    
+    func itemForRow(at indexPath: IndexPath) -> NewsFeed {
+        
+        
+        return self.items[indexPath.row]
+        
+    }
+    func list()->[NewsFeed]{
+        return self.items
     }
     
 }

@@ -34,7 +34,7 @@ class Fetching: FetchingProtocol {
                 
             } catch {
                 failure(error)
-                print(error)
+                debugPrint(error)
             }
             
         })

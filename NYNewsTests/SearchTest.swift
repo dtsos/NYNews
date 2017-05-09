@@ -23,45 +23,15 @@ class SearchTest: XCTestCase {
     
     var fetcher:Fetching?
     
-    var fetchedResultsController: NSFetchedResultsController<NewsFeed>? = nil
-    
-    var _fetchedResultsController: NSFetchedResultsController<NewsFeed>? = nil
     override func setUp() {
         super.setUp()
         // Put setup code here. This method is called before the invocation of each test method in the class.
         appDelegate = UIApplication.shared.delegate as? AppDelegate
         managedObjectContext = appDelegate?.persistentContainer.viewContext
         fetcher = Fetching()
-        let fetchRequest: NSFetchRequest<NewsFeed> = NewsFeed.fetchRequest()
-        
-        
-        fetchRequest.fetchBatchSize = 20
-        fetchRequest.predicate = NSPredicate(format: "page <= 0 AND isHeadline = true")
-        
-        
-        
-        let sortDescriptor = NSSortDescriptor(key: "dateModified", ascending: false)
-        
-        fetchRequest.sortDescriptors = [sortDescriptor]
-        
-        let aFetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: managedObjectContext!, sectionNameKeyPath: nil, cacheName:nil)
-        
-        self._fetchedResultsController = aFetchedResultsController
-        
-        do {
-            try _fetchedResultsController!.performFetch()
-        } catch {
-            
-            let nserror = error as NSError
-            fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
-        }
-        
-        self.fetchedResultsController = self._fetchedResultsController!
-        
-        
         let storyboard =  UIStoryboard(name: storyboardName, bundle: nil)
         listNewsVC = storyboard.instantiateViewController(withIdentifier: ListNewsViewController.ID) as? ListNewsViewController
-        //        newsFeedsModel =  NewsFeedModel.init(fetcher: self.fetcher!, fetchNewsController: fetchedResultsController)
+        
         searchFeedModel =  SearchFeedModel.init(fetching: self.fetcher!, managedContext: self.managedObjectContext!)
         
     }
@@ -77,8 +47,6 @@ class SearchTest: XCTestCase {
         fetcher = nil
         searchFeedModel = nil
         listNewsVC =  nil
-        fetchedResultsController =  nil
-        _fetchedResultsController =  nil
     }
     func testSearch(){
         let search = searchFeedModel?.createNewSearch(keyword: "Key")
@@ -96,13 +64,13 @@ class SearchTest: XCTestCase {
         XCTAssertTrue(self.searchFeedModel?.list().count == 0,"its muset zero")
         self.searchFeedModel!.letSearch(keyword: "Key wan", completion: { (search) in
             
-        
+            
             self.searchFeedModel?.checkServer(page: 0, search: search, beginUpdateView: {
                 
             }, failed: {
                 
             }, completion: { (page) in
-                 XCTAssertTrue(self.searchFeedModel?.list().count != 0,"its not empty")
+                XCTAssertTrue(self.searchFeedModel?.list().count != 0,"its not empty")
                 XCTAssertNotNil(self.searchFeedModel?.list(),"Not Nil")
                 XCTAssertEqual(self.searchFeedModel?.list().count, self.searchFeedModel?.numberOfRows(inSection: 0)," Its must be Equal")
             })
@@ -110,17 +78,15 @@ class SearchTest: XCTestCase {
         
         
         
-       self.searchFeedModel!.letSearch(keyword: "Key wan2", completion: { (search) in
+        self.searchFeedModel!.letSearch(keyword: "Key wan2", completion: { (search) in
             self.searchFeedModel?.checkServer(page: 0, search: search, beginUpdateView: {
                 
             }, failed: {
                 
             }, completion: { (page) in
-                XCTAssertNotNil(self.searchFeedModel?.list(),"Not Nil")
+                XCTAssertTrue(self.searchFeedModel?.list().count != 0,"its not empty")
             })
         })
-        //         managedObjectContext?.delete(search!)
-        //
     }
     func testPerformanceExample() {
         // This is an example of a performance test case.
