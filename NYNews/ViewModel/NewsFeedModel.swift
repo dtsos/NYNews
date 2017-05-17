@@ -8,16 +8,18 @@
 
 import Foundation
 import CoreData
+import UIKit
 class NewsModel {
     private let fetcher: Fetching
     
+    let appDelegate = UIApplication.shared.delegate as! AppDelegate
     
-    init(fetcher: Fetching, dictionary: [String: AnyObject],search:Search,context:NSManagedObjectContext) {
+    init(fetcher: Fetching, dictionary: [String: AnyObject],search:Search) {
         self.fetcher = fetcher
         
-        self.context =  context
         
-        self.news =  NewsFeed(context:context)
+        
+        self.news =  NewsFeed(context:self.context!)
         self.id =  dictionary["_id"] as? String ?? ""
         if let headline = dictionary["headline"]{
             self.title = headline["main"] as? String ?? ""
@@ -51,11 +53,11 @@ class NewsModel {
         
     }
     
-    init(fetcher: Fetching, dictionary: [String: AnyObject],context:NSManagedObjectContext) {
+    init(fetcher: Fetching, dictionary: [String: AnyObject]) {
         self.fetcher = fetcher
         
-        self.context =  context
-        self.news =  NewsFeed(context:context)
+        
+        self.news =  NewsFeed(context:self.context!)
         
         self.id =  dictionary["_id"] as? String ?? ""
         if let headline = dictionary["headline"]{
@@ -92,7 +94,10 @@ class NewsModel {
     }
     
     var news:NewsFeed?
-    var context:NSManagedObjectContext?
+    var context:NSManagedObjectContext? {
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        return appDelegate.managedObjectContext
+    }
     
     var title:String?{
         willSet {
@@ -104,19 +109,6 @@ class NewsModel {
             self.news?.date =  newValue ?? ""
         }
     }
-    
-    //    init(_ newsFeed:NewsFeed, context:NSManagedObjectContext,fetcher:Fetching) {
-    //        self.news = newsFeed
-    //        self.id =  self.news?.id
-    //        self.title =  self.news?.title
-    //        self.url =  self.news?.url
-    //        self.date =  self.news?.date
-    //        self.imageUrl = self.news?.imageUrl
-    //        self.snippet  = self.news?.snippet
-    //
-    //        self.context = context
-    //        self.fetcher = fetcher
-    //    }
     
     
     
@@ -194,16 +186,17 @@ class NewsFeedModel : NSObject {
     var stillDownload:Bool = false
     
     fileprivate var items : [NewsFeed] = [NewsFeed]()
-    var context:NSManagedObjectContext?
-    
-    
+    var context:NSManagedObjectContext? {
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        return appDelegate.managedObjectContext
+    }
     private let fetcher: Fetching
     
     
-    init(fetcher: Fetching,managedObjectContext:NSManagedObjectContext){
+    init(fetcher: Fetching){
         self.fetcher = fetcher
         
-        self.context = managedObjectContext
+       
         
         self.page = 0
         
@@ -349,7 +342,7 @@ class NewsFeedModel : NSObject {
                 self.context?.performAndWait {
                     for aData in itemDictionaries {
                         
-                        let newsModel =  NewsModel.init(fetcher: self.fetcher,  dictionary: aData, context: self.context!)
+                        let newsModel =  NewsModel.init(fetcher: self.fetcher,  dictionary: aData)
                         
                         newsModel.news?.isHeadline = true
                         newsModel.news?.page = page

@@ -16,6 +16,22 @@ class DetailNewsViewController : UIViewController,UICollectionViewDelegate,UICol
     @IBOutlet  weak var collectionView: UICollectionView!
     var arrayNews :[NewsFeed]?
     var indexStart :IndexPath?
+    var searchModel : SearchNewsFeedModel? {
+        willSet{
+            if (newValue != nil){
+                self.newsModel = nil
+            }
+        }
+    }
+    var newsModel : NewsFeedModel?{
+        willSet{
+            if (newValue != nil){
+                self.searchModel = nil
+            }
+        }
+    }
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -42,7 +58,7 @@ class DetailNewsViewController : UIViewController,UICollectionViewDelegate,UICol
         collectionView.scrollToItem(at: indexStart!, at: UICollectionViewScrollPosition(rawValue: 0), animated: true)
         
     }
-   
+    
     //MARK: UICollectionViewDataSource
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
@@ -50,7 +66,14 @@ class DetailNewsViewController : UIViewController,UICollectionViewDelegate,UICol
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return arrayNews!.count
+        if self.newsModel != nil{
+            return (self.newsModel?.numberOfRows(inSection: section))!
+        }else{
+            if self.searchModel != nil {
+                return (self.newsModel?.numberOfRows(inSection: section))!
+            }
+            return 0
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -60,16 +83,30 @@ class DetailNewsViewController : UIViewController,UICollectionViewDelegate,UICol
     }
     
     func configureCell(cell: DetailCell, forItemAt indexPath: IndexPath) {
-        let newsFeed =  self.arrayNews?[indexPath.row]
-        if newsFeed?.url != nil {
-            let urlRequest = URLRequest(url:URL(string:(newsFeed?.url!)!)!)
+        
+        
+        let aNewsFeed =  newsFeed(at:indexPath)
+        if aNewsFeed !=  nil && aNewsFeed?.url != nil {
+            let urlRequest = URLRequest(url:URL(string:(aNewsFeed?.url!)!)!)
             cell.webview.loadRequest(urlRequest)
             
         }
-      
+        
     }
     
- 
+    func newsFeed(at indexPath:IndexPath) -> NewsFeed? {
+        if self.newsModel != nil {
+            return self.newsModel?.itemForRow(at:indexPath)
+        }else{
+            if self.searchModel != nil {
+                let newsFeed = self.searchModel?.itemForRow(at: indexPath)
+                if newsFeed is NewsFeed {
+                    return (newsFeed as! NewsFeed)
+                }
+            }
+        }
+        return nil
+    }
     
     
 }

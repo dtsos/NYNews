@@ -7,7 +7,7 @@
 //
 
 import UIKit
-import CoreData
+
 
 class SearchCell : UICollectionViewCell {
     @IBOutlet weak var labelKeyword: UILabel!
@@ -36,7 +36,7 @@ class NewsCell : UICollectionViewCell {
     }
     
 }
-class ListNewsViewController: UIViewController,UICollectionViewDelegate,UICollectionViewDataSource,NSFetchedResultsControllerDelegate,UISearchBarDelegate,UISearchControllerDelegate,UICollectionViewDelegateFlowLayout,UISearchResultsUpdating,SearchFeedModelDelegate,NewsFeedDelegate {
+class ListNewsViewController: UIViewController,UICollectionViewDelegate,UICollectionViewDataSource,UISearchBarDelegate,UISearchControllerDelegate,UICollectionViewDelegateFlowLayout,UISearchResultsUpdating,SearchFeedModelDelegate,NewsFeedDelegate {
     
     static let ID = "ListNewsVC"
     let searchController = UISearchController(searchResultsController: nil)
@@ -44,9 +44,9 @@ class ListNewsViewController: UIViewController,UICollectionViewDelegate,UICollec
     @IBOutlet weak var collectionView: UICollectionView!
     var stringKeyword:String = ""
     
-    var managedObjectContext: NSManagedObjectContext? = nil
     
-    var searchFeed:SearchFeedModel?
+    
+    var searchFeed:SearchNewsFeedModel?
     
     var newsModel:NewsFeedModel?
     let fetcher:Fetching = Fetching()
@@ -58,6 +58,7 @@ class ListNewsViewController: UIViewController,UICollectionViewDelegate,UICollec
     override func viewDidLoad() {
         super.viewDidLoad()
         self.cache = NSCache()
+        
         collectionView.delegate = self
         collectionView.dataSource =  self
         
@@ -76,7 +77,7 @@ class ListNewsViewController: UIViewController,UICollectionViewDelegate,UICollec
         layout.minimumInteritemSpacing = 10.0
         collectionView.setCollectionViewLayout(layout, animated: true)
         
-        newsModel = NewsFeedModel.init(fetcher: self.fetcher, managedObjectContext: self.managedObjectContext!)
+        newsModel = NewsFeedModel.init(fetcher: self.fetcher)
         
         refreshControl.addTarget(self, action: #selector(didPullToRefresh), for: .valueChanged)
         collectionView.refreshControl =  refreshControl
@@ -89,7 +90,7 @@ class ListNewsViewController: UIViewController,UICollectionViewDelegate,UICollec
         newsModel?.delegate = self
         
         newsModel?.readyVC()
-        searchFeed =  SearchFeedModel.init(fetching: self.fetcher, managedContext: self.managedObjectContext!)
+        searchFeed =  SearchNewsFeedModel.init(fetching: self.fetcher)
         searchFeed?.delegate = self
         
         
@@ -179,7 +180,7 @@ class ListNewsViewController: UIViewController,UICollectionViewDelegate,UICollec
             searchController.isActive = false
             let detailNewsVC = self.storyboard?.instantiateViewController(withIdentifier: "DetailNewsVC") as! DetailNewsViewController
             detailNewsVC.indexStart = indexPath
-            detailNewsVC.arrayNews =  searchFeed?.isNews == true ?searchFeed?.list():self.newsModel?.list()
+              searchFeed?.isNews == true ?(detailNewsVC.searchModel = searchFeed):(detailNewsVC.newsModel = newsModel)
             self.navigationController?.pushViewController(detailNewsVC, animated: true)
             
         }else{
@@ -283,7 +284,7 @@ class ListNewsViewController: UIViewController,UICollectionViewDelegate,UICollec
     
     @IBAction func actionSearch(_ sender: UIBarButtonItem) {
         newsModel?.cancelOperation()
-        searchFeed?.checkCoreData()
+        
         searchController.searchResultsUpdater = self
         searchController.searchBar.delegate = self
         self.collectionView.reloadData()
@@ -292,7 +293,7 @@ class ListNewsViewController: UIViewController,UICollectionViewDelegate,UICollec
     func updateSearchResults(for searchController: UISearchController) {
         if searchController.searchBar.text?.characters.count == 0 {
             searchFeed?.isNews = false
-            searchFeed?.checkCoreData()
+            self.collectionView.reloadData()
         }
     }
     
@@ -304,11 +305,14 @@ class ListNewsViewController: UIViewController,UICollectionViewDelegate,UICollec
         }
         searchFeed?.letSearch(keyword: keyword, completion: { search in
             if self.searchFeed?.search != search {
-                self.searchFeed?.cancelOperation()
+                
                 
                 self.searchFeed?.search = search
                 self.searchFeed?.createListNews()
                 self.searchFeed?.checkServer(page: 0, search: search, beginUpdateView: self.update, failed: self.failed, completion: self.completion)
+            }else{
+        
+                self.collectionView.reloadData()
             }
         })
         
@@ -320,6 +324,7 @@ class ListNewsViewController: UIViewController,UICollectionViewDelegate,UICollec
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar){
         self.searchFeed?.search = nil
         self.searchFeed?.isNews = false
+        self.searchFeed?.cancelOperation()
         self.collectionView.reloadData()
     }
     

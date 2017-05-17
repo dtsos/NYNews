@@ -17,9 +17,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var managedObjectContext: NSManagedObjectContext?
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
-        let navcontroller = self.window!.rootViewController as! UINavigationController
-        let controller =  navcontroller.viewControllers.first as! ListNewsViewController
-        controller.managedObjectContext = self.persistentContainer.viewContext
+       
+        self.managedObjectContext = self.persistentContainer.viewContext
         
         
         

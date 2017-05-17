@@ -7,25 +7,57 @@
 //
 
 import Foundation
+import UIKit
 import CoreData
 @objc protocol SearchFeedModelDelegate {
     func updateView()
     @objc optional func updateSection(section:IndexSet,type: NSFetchedResultsChangeType)
     @objc optional func updateRow(oldIndexPath:IndexPath?,newIndexPath:IndexPath?,type: NSFetchedResultsChangeType)
 }
-class SearchFeedModel:NSObject {
+class SearchModel{
+    var context:NSManagedObjectContext? {
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        return appDelegate.managedObjectContext
+    }
+    init() {
+        
+        let fetchRequest : NSFetchRequest<Search> = Search.fetchRequest()
+        let sortDescriptor = NSSortDescriptor(key: "date", ascending: false)
+        
+        fetchRequest.sortDescriptors = [sortDescriptor]
+        
+        var result :[Search]?
+        do {
+            result = try self.context?.fetch(fetchRequest)
+        } catch {
+            self.listSearch = nil
+        }
+        
+        self.listSearch = result
+        
+    }
+    var listSearch:[Search]?
+    
+    
+}
+class SearchNewsFeedModel:NSObject {
     var delegate:SearchFeedModelDelegate?
     fileprivate var itemsNewsFeed:[NewsFeed] = [NewsFeed]()
-    fileprivate var itemsSearch:[Search] =  [Search]()
+    var itemsSearch:[Search] = [Search]()
     var search:Search?
     var fetcher:Fetching
+    var context:NSManagedObjectContext? {
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        return appDelegate.managedObjectContext
+    }
     
-    var managedObjectContext: NSManagedObjectContext? = nil
     
-    init(fetching:Fetching,managedContext:NSManagedObjectContext) {
-        self.managedObjectContext = managedContext
-        self.fetcher =  fetching
+    init(fetching:Fetching) {
         
+        
+        self.fetcher =  fetching
+        let aSearchModel =  SearchModel.init()
+        self.itemsSearch = aSearchModel.listSearch!
         
         
         
@@ -70,6 +102,9 @@ class SearchFeedModel:NSObject {
     }
     // check server if item diffrent update
     func checkServer(page:Int16,search:Search,beginUpdateView: @escaping () -> Void,failed: @escaping () -> Void,completion: @escaping (_ page:Int16) -> Void){
+        if page == 0 {
+            self.cancelOperation()
+        }
         
         if stillDownload == true  && page > 0 {
             
@@ -97,16 +132,7 @@ class SearchFeedModel:NSObject {
             
             
             let itemDictionaries: [[String:AnyObject]] = data
-//            if (itemDictionaries.count <= 0){
-//                let arrayAllNews: [NewsFeed] = search.listNews?.allObjects as! [NewsFeed]
-//                let arrayNews = arrayAllNews.filter{ ($0 as NewsFeed).page == page }
-//                self.itemsNewsFeed.append(contentsOf: arrayNews )
-//                self.delegate?.updateView()
-//            
-//                debugPrint(search.listNews!)
-//                completion(page > 1 ? page - 1 :0)
-//                return
-//            }
+          
             let dictListnews:[String:AnyObject]? =  (itemDictionaries.count >= 1 ?  itemDictionaries.first : nil )
             
             if self.isNeedUpdateServer(dictionary:dictListnews, page: page) || itemDictionaries.count == 0{
@@ -118,15 +144,15 @@ class SearchFeedModel:NSObject {
                 let indexStart = 0
                 
                 if indexStart < (items.count) {
-                    self.managedObjectContext?.performAndWait {
+                    self.context?.performAndWait {
                         for i in indexStart..<items.count{
                             //                for aNewsFeed in items! {
                             
                             let aNewsFeed:NewsFeed = items[i]
-                            self.managedObjectContext?.delete(aNewsFeed)
+                            self.context?.delete(aNewsFeed)
                             
                             do {
-                                try self.managedObjectContext?.save()
+                                try self.context?.save()
                             }catch{
                                 debugPrint(error)
                             }
@@ -136,10 +162,10 @@ class SearchFeedModel:NSObject {
                 if page == 0{
                     self.itemsNewsFeed.removeAll()
                 }
-                self.managedObjectContext?.performAndWait {
+                self.context?.performAndWait {
                     for aData in itemDictionaries {
                         
-                        let newsModel =  NewsModel.init(fetcher: self.fetcher,  dictionary: aData,search:search, context: self.managedObjectContext!)
+                        let newsModel =  NewsModel.init(fetcher: self.fetcher,  dictionary: aData,search:search)
                         
                         newsModel.news?.isHeadline = false
                         newsModel.news?.page = page
@@ -179,11 +205,11 @@ class SearchFeedModel:NSObject {
     
     //create new search
     func createNewSearch(keyword:String) -> Search?{
-        let search:Search = Search(context:self.managedObjectContext!)
+        let search:Search = Search(context:self.context!)
         search.keyword = keyword
         search.date =  NSDate()
         do {
-            try self.managedObjectContext?.save()
+            try self.context?.save()
         } catch  {
             return nil
         }
@@ -191,23 +217,6 @@ class SearchFeedModel:NSObject {
     }
     
     //get list search
-    func arrayAllSearch() -> [Search]? {
-        let fetchRequest : NSFetchRequest<Search> = Search.fetchRequest()
-        let sortDescriptor = NSSortDescriptor(key: "date", ascending: false)
-        
-        fetchRequest.sortDescriptors = [sortDescriptor]
-        
-        var result :[Search]?
-        do {
-            result = try self.managedObjectContext?.fetch(fetchRequest)
-        } catch {
-            
-        }
-        self.itemsSearch.removeAll()
-        self.itemsSearch = result!
-        return result
-        
-    }
     
     // move array search to index
     func rearrange<T>(array: inout Array<T>, fromIndex: Int, toIndex: Int){
@@ -220,8 +229,11 @@ class SearchFeedModel:NSObject {
     
     //search newsfeed
     public func letSearch(keyword:String,completion: @escaping (_ search:Search) -> Void) {
-        if self.itemsSearch.count == 0 {
-            self.itemsSearch = arrayAllSearch()!
+        if self.search?.keyword ==  keyword {
+            self.isNews =  true
+            completion(self.search!)
+        
+            return
         }
         var items = self.itemsSearch
         if items.count == 0 {
@@ -237,10 +249,10 @@ class SearchFeedModel:NSObject {
         let aSearch:Search
         if let i = items.index(where: { $0.keyword == keyword}) {
             
-            aSearch =  items[i]
+            aSearch =  (items[i])
             aSearch.date = NSDate()
             do {
-                try self.managedObjectContext?.save()
+                try self.context?.save()
             } catch  {
                 
             }
@@ -260,15 +272,16 @@ class SearchFeedModel:NSObject {
         
         if (items.count) > 10 {
             let lastSearch = items.last
-            self.managedObjectContext?.delete(lastSearch!)
-            self.itemsSearch.removeLast()
+            self.context?.delete(lastSearch!)
+            items.removeLast()
             do {
-                try self.managedObjectContext?.save()
+                try self.context?.save()
             } catch  {
                 
             }
             
         }
+        self.itemsSearch = items
         delegate?.updateView()
         completion(aSearch)
         
@@ -277,7 +290,7 @@ class SearchFeedModel:NSObject {
     //    fetch search
     func checkCoreData(){
         
-        self.itemsSearch =  arrayAllSearch()!
+        
         delegate?.updateView()
     }
     

@@ -63,9 +63,9 @@ class NYNewsTests: XCTestCase {
         fetcher = Fetching()
         let storyboard =  UIStoryboard(name: storyboardName, bundle: nil)
         listNewsVC = storyboard.instantiateViewController(withIdentifier: ListNewsViewController.ID) as? ListNewsViewController
-        newsFeedsModel =  NewsFeedModel.init(fetcher: self.fetcher!,managedObjectContext: managedObjectContext!)
+        newsFeedsModel =  NewsFeedModel.init(fetcher: self.fetcher!)
 //        listNewsVC?.fetchedResultsController = fetchedResultsController
-        listNewsVC?.managedObjectContext = managedObjectContext
+        
         listNewsVC?.newsModel = newsFeedsModel
         
     }
@@ -92,7 +92,7 @@ class NYNewsTests: XCTestCase {
                                               "pub_date": "2017-05-08T04:24:44+0000" as AnyObject,
                                               
                                               "_id": "590ff3167c459f24986de3d5" as AnyObject]
-        let aNewsModel = NewsModel.init(fetcher: self.fetcher!, dictionary: aDictionary, context: self.managedObjectContext!)
+        let aNewsModel = NewsModel.init(fetcher: self.fetcher!, dictionary: aDictionary)
         aNewsModel.snippet = "newSnippet"
         aNewsModel.url = "newURl"
         aNewsModel.id = "newId"

@@ -17,7 +17,7 @@ class SearchTest: XCTestCase {
     var managedObjectContext: NSManagedObjectContext?
     var listNewsVC : ListNewsViewController?
     //    var newsFeedsModel :NewsFeedModel?
-    var searchFeedModel: SearchFeedModel?
+    var searchFeedModel: SearchNewsFeedModel?
     let storyboardName = "Main"
     static let viewName = "ListNewsVC"
     
@@ -32,7 +32,7 @@ class SearchTest: XCTestCase {
         let storyboard =  UIStoryboard(name: storyboardName, bundle: nil)
         listNewsVC = storyboard.instantiateViewController(withIdentifier: ListNewsViewController.ID) as? ListNewsViewController
         
-        searchFeedModel =  SearchFeedModel.init(fetching: self.fetcher!, managedContext: self.managedObjectContext!)
+        searchFeedModel =  SearchNewsFeedModel.init(fetching: self.fetcher!)
         
     }
     
