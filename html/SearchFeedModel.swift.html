@@ -7,9 +7,9 @@
 <body>
 <header><div class="row"><a href="index.html"><img src="logo.jpg" alt="Slather logo"></a></div></header><div class="row"><div id="reports">
 <h2 class="cov_title">
-<span>Coverage for "SearchFeedModel.swift" : </span><span class="cov_low">37.27%</span>
+<span>Coverage for "SearchFeedModel.swift" : </span><span class="cov_low">30.26%</span>
 </h2>
-<h4 class="cov_subtitle">(101 of 271 relevant lines covered)</h4>
+<h4 class="cov_subtitle">(82 of 271 relevant lines covered)</h4>
 <h4 class="cov_filepath">NYNews/ViewModel/SearchFeedModel.swift</h4>
 <table class="source_code">
 <tr class="never">
@@ -100,82 +100,82 @@
 <tr class="covered">
 <td class="num">18</td>
 <td class="src"><pre><code class="objc">    var context:NSManagedObjectContext? {</code></pre></td>
-<td class="coverage">4x</td>
+<td class="coverage">3x</td>
 </tr>
 <tr class="covered">
 <td class="num">19</td>
 <td class="src"><pre><code class="objc">        let appDelegate = UIApplication.shared.delegate as! AppDelegate</code></pre></td>
-<td class="coverage">4x</td>
+<td class="coverage">3x</td>
 </tr>
 <tr class="covered">
 <td class="num">20</td>
 <td class="src"><pre><code class="objc">        return appDelegate.managedObjectContext</code></pre></td>
-<td class="coverage">4x</td>
+<td class="coverage">3x</td>
 </tr>
 <tr class="covered">
 <td class="num">21</td>
 <td class="src"><pre><code class="objc">    }</code></pre></td>
-<td class="coverage">4x</td>
+<td class="coverage">3x</td>
 </tr>
 <tr class="covered">
 <td class="num">22</td>
 <td class="src"><pre><code class="objc">    init() {</code></pre></td>
-<td class="coverage">4x</td>
+<td class="coverage">3x</td>
 </tr>
 <tr class="covered">
 <td class="num">23</td>
 <td class="src"><pre><code class="objc">        </code></pre></td>
-<td class="coverage">4x</td>
+<td class="coverage">3x</td>
 </tr>
 <tr class="covered">
 <td class="num">24</td>
 <td class="src"><pre><code class="objc">        let fetchRequest : NSFetchRequest&lt;Search&gt; = Search.fetchRequest()</code></pre></td>
-<td class="coverage">4x</td>
+<td class="coverage">3x</td>
 </tr>
 <tr class="covered">
 <td class="num">25</td>
 <td class="src"><pre><code class="objc">        let sortDescriptor = NSSortDescriptor(key: "date", ascending: false)</code></pre></td>
-<td class="coverage">4x</td>
+<td class="coverage">3x</td>
 </tr>
 <tr class="covered">
 <td class="num">26</td>
 <td class="src"><pre><code class="objc">        </code></pre></td>
-<td class="coverage">4x</td>
+<td class="coverage">3x</td>
 </tr>
 <tr class="covered">
 <td class="num">27</td>
 <td class="src"><pre><code class="objc">        fetchRequest.sortDescriptors = [sortDescriptor]</code></pre></td>
-<td class="coverage">4x</td>
+<td class="coverage">3x</td>
 </tr>
 <tr class="covered">
 <td class="num">28</td>
 <td class="src"><pre><code class="objc">        </code></pre></td>
-<td class="coverage">4x</td>
+<td class="coverage">3x</td>
 </tr>
 <tr class="covered">
 <td class="num">29</td>
 <td class="src"><pre><code class="objc">        var result :[Search]?</code></pre></td>
-<td class="coverage">4x</td>
+<td class="coverage">3x</td>
 </tr>
 <tr class="covered">
 <td class="num">30</td>
 <td class="src"><pre><code class="objc">        </code></pre></td>
-<td class="coverage">4x</td>
+<td class="coverage">3x</td>
 </tr>
 <tr class="covered">
 <td class="num">31</td>
 <td class="src"><pre><code class="objc">        result = (try! self.context?.fetch(fetchRequest))</code></pre></td>
-<td class="coverage">4x</td>
+<td class="coverage">3x</td>
 </tr>
 <tr class="covered">
 <td class="num">32</td>
 <td class="src"><pre><code class="objc">        </code></pre></td>
-<td class="coverage">4x</td>
+<td class="coverage">3x</td>
 </tr>
 <tr class="covered">
 <td class="num">33</td>
 <td class="src"><pre><code class="objc">        </code></pre></td>
-<td class="coverage">4x</td>
+<td class="coverage">3x</td>
 </tr>
 <tr class="missed">
 <td class="num">34</td>
@@ -185,12 +185,12 @@
 <tr class="covered">
 <td class="num">35</td>
 <td class="src"><pre><code class="objc">        </code></pre></td>
-<td class="coverage">4x</td>
+<td class="coverage">3x</td>
 </tr>
 <tr class="covered">
 <td class="num">36</td>
 <td class="src"><pre><code class="objc">    }</code></pre></td>
-<td class="coverage">4x</td>
+<td class="coverage">3x</td>
 </tr>
 <tr class="never">
 <td class="num">37</td>
@@ -245,22 +245,22 @@
 <tr class="covered">
 <td class="num">47</td>
 <td class="src"><pre><code class="objc">    var context:NSManagedObjectContext? {</code></pre></td>
-<td class="coverage">24x</td>
+<td class="coverage">3x</td>
 </tr>
 <tr class="covered">
 <td class="num">48</td>
 <td class="src"><pre><code class="objc">        let appDelegate = UIApplication.shared.delegate as! AppDelegate</code></pre></td>
-<td class="coverage">24x</td>
+<td class="coverage">3x</td>
 </tr>
 <tr class="covered">
 <td class="num">49</td>
 <td class="src"><pre><code class="objc">        return appDelegate.managedObjectContext</code></pre></td>
-<td class="coverage">24x</td>
+<td class="coverage">3x</td>
 </tr>
 <tr class="covered">
 <td class="num">50</td>
 <td class="src"><pre><code class="objc">    }</code></pre></td>
-<td class="coverage">24x</td>
+<td class="coverage">3x</td>
 </tr>
 <tr class="never">
 <td class="num">51</td>
@@ -275,52 +275,52 @@
 <tr class="covered">
 <td class="num">53</td>
 <td class="src"><pre><code class="objc">    init(fetching:Fetching) {</code></pre></td>
-<td class="coverage">4x</td>
+<td class="coverage">3x</td>
 </tr>
 <tr class="covered">
 <td class="num">54</td>
 <td class="src"><pre><code class="objc">        </code></pre></td>
-<td class="coverage">4x</td>
+<td class="coverage">3x</td>
 </tr>
 <tr class="covered">
 <td class="num">55</td>
 <td class="src"><pre><code class="objc">        </code></pre></td>
-<td class="coverage">4x</td>
+<td class="coverage">3x</td>
 </tr>
 <tr class="covered">
 <td class="num">56</td>
 <td class="src"><pre><code class="objc">        self.fetcher =  fetching</code></pre></td>
-<td class="coverage">4x</td>
+<td class="coverage">3x</td>
 </tr>
 <tr class="covered">
 <td class="num">57</td>
 <td class="src"><pre><code class="objc">        let aSearchModel =  SearchModel.init()</code></pre></td>
-<td class="coverage">4x</td>
+<td class="coverage">3x</td>
 </tr>
 <tr class="covered">
 <td class="num">58</td>
 <td class="src"><pre><code class="objc">        self.itemsSearch = aSearchModel.listSearch!</code></pre></td>
-<td class="coverage">4x</td>
+<td class="coverage">3x</td>
 </tr>
 <tr class="covered">
 <td class="num">59</td>
 <td class="src"><pre><code class="objc">        </code></pre></td>
-<td class="coverage">4x</td>
+<td class="coverage">3x</td>
 </tr>
 <tr class="covered">
 <td class="num">60</td>
 <td class="src"><pre><code class="objc">        </code></pre></td>
-<td class="coverage">4x</td>
+<td class="coverage">3x</td>
 </tr>
 <tr class="covered">
 <td class="num">61</td>
 <td class="src"><pre><code class="objc">        </code></pre></td>
-<td class="coverage">4x</td>
+<td class="coverage">3x</td>
 </tr>
 <tr class="covered">
 <td class="num">62</td>
 <td class="src"><pre><code class="objc">    }</code></pre></td>
-<td class="coverage">4x</td>
+<td class="coverage">3x</td>
 </tr>
 <tr class="never">
 <td class="num">63</td>
@@ -530,32 +530,32 @@
 <tr class="covered">
 <td class="num">104</td>
 <td class="src"><pre><code class="objc">    func checkServer(page:Int16,search:Search,beginUpdateView: @escaping () -&gt; Void,failed: @escaping () -&gt; Void,completion: @escaping (_ page:Int16) -&gt; Void){</code></pre></td>
-<td class="coverage">22x</td>
+<td class="coverage">1x</td>
 </tr>
 <tr class="covered">
 <td class="num">105</td>
 <td class="src"><pre><code class="objc">        if page == 0 {</code></pre></td>
-<td class="coverage">22x</td>
+<td class="coverage">1x</td>
 </tr>
 <tr class="covered">
 <td class="num">106</td>
 <td class="src"><pre><code class="objc">            self.cancelOperation()</code></pre></td>
-<td class="coverage">22x</td>
+<td class="coverage">1x</td>
 </tr>
 <tr class="covered">
 <td class="num">107</td>
 <td class="src"><pre><code class="objc">        }</code></pre></td>
-<td class="coverage">22x</td>
+<td class="coverage">1x</td>
 </tr>
 <tr class="covered">
 <td class="num">108</td>
 <td class="src"><pre><code class="objc">        </code></pre></td>
-<td class="coverage">22x</td>
+<td class="coverage">1x</td>
 </tr>
-<tr class="covered">
+<tr class="missed">
 <td class="num">109</td>
 <td class="src"><pre><code class="objc">        if stillDownload == true  &amp;&amp; page &gt; 0 {</code></pre></td>
-<td class="coverage">20x</td>
+<td class="coverage">!</td>
 </tr>
 <tr class="missed">
 <td class="num">110</td>
@@ -570,22 +570,22 @@
 <tr class="covered">
 <td class="num">112</td>
 <td class="src"><pre><code class="objc">        }</code></pre></td>
-<td class="coverage">22x</td>
+<td class="coverage">1x</td>
 </tr>
 <tr class="covered">
 <td class="num">113</td>
 <td class="src"><pre><code class="objc">        stillDownload = true</code></pre></td>
-<td class="coverage">22x</td>
+<td class="coverage">1x</td>
 </tr>
 <tr class="covered">
 <td class="num">114</td>
 <td class="src"><pre><code class="objc">        self.isNews = true</code></pre></td>
-<td class="coverage">22x</td>
+<td class="coverage">1x</td>
 </tr>
 <tr class="covered">
 <td class="num">115</td>
 <td class="src"><pre><code class="objc">        lastStringQuery =  "\(Constant.URLArticleSearch)\(Constant.paramAPIKeyValue)&amp;page=\(page)&amp;q=\(search.keyword!)&amp;sort=newest"</code></pre></td>
-<td class="coverage">22x</td>
+<td class="coverage">1x</td>
 </tr>
 <tr class="missed">
 <td class="num">116</td>
@@ -607,35 +607,35 @@
 <td class="src"><pre><code class="objc">            </code></pre></td>
 <td class="coverage">!</td>
 </tr>
-<tr class="covered">
+<tr class="missed">
 <td class="num">120</td>
 <td class="src"><pre><code class="objc">        }) { (dictionary) in</code></pre></td>
-<td class="coverage">2x</td>
+<td class="coverage">!</td>
 </tr>
-<tr class="covered">
+<tr class="missed">
 <td class="num">121</td>
 <td class="src"><pre><code class="objc">            guard let response: [String:AnyObject] =  dictionary["response"] as? [String:AnyObject] else{</code></pre></td>
-<td class="coverage">2x</td>
+<td class="coverage">!</td>
 </tr>
-<tr class="covered">
+<tr class="missed">
 <td class="num">122</td>
 <td class="src"><pre><code class="objc">                self.stillDownload = false</code></pre></td>
-<td class="coverage">2x</td>
+<td class="coverage">!</td>
 </tr>
-<tr class="covered">
+<tr class="missed">
 <td class="num">123</td>
 <td class="src"><pre><code class="objc">                failed()</code></pre></td>
-<td class="coverage">2x</td>
+<td class="coverage">!</td>
 </tr>
-<tr class="covered">
+<tr class="missed">
 <td class="num">124</td>
 <td class="src"><pre><code class="objc">                </code></pre></td>
-<td class="coverage">2x</td>
+<td class="coverage">!</td>
 </tr>
-<tr class="covered">
+<tr class="missed">
 <td class="num">125</td>
 <td class="src"><pre><code class="objc">                return</code></pre></td>
-<td class="coverage">2x</td>
+<td class="coverage">!</td>
 </tr>
 <tr class="missed">
 <td class="num">126</td>
@@ -980,12 +980,12 @@
 <tr class="covered">
 <td class="num">194</td>
 <td class="src"><pre><code class="objc">        </code></pre></td>
-<td class="coverage">22x</td>
+<td class="coverage">1x</td>
 </tr>
 <tr class="covered">
 <td class="num">195</td>
 <td class="src"><pre><code class="objc">    }</code></pre></td>
-<td class="coverage">22x</td>
+<td class="coverage">1x</td>
 </tr>
 <tr class="never">
 <td class="num">196</td>
@@ -1020,17 +1020,17 @@
 <tr class="covered">
 <td class="num">202</td>
 <td class="src"><pre><code class="objc">    {</code></pre></td>
-<td class="coverage">22x</td>
+<td class="coverage">1x</td>
 </tr>
 <tr class="covered">
 <td class="num">203</td>
 <td class="src"><pre><code class="objc">        URLSession.shared.cancelOperation(stringUrl: lastStringQuery)</code></pre></td>
-<td class="coverage">22x</td>
+<td class="coverage">1x</td>
 </tr>
 <tr class="covered">
 <td class="num">204</td>
 <td class="src"><pre><code class="objc">    }</code></pre></td>
-<td class="coverage">22x</td>
+<td class="coverage">1x</td>
 </tr>
 <tr class="never">
 <td class="num">205</td>
@@ -1117,40 +1117,40 @@
 <td class="src"><pre><code class="objc">    // move array search to index</code></pre></td>
 <td class="coverage"></td>
 </tr>
-<tr class="covered">
+<tr class="missed">
 <td class="num">222</td>
 <td class="src"><pre><code class="objc">    func rearrange&lt;T&gt;(array: inout Array&lt;T&gt;, fromIndex: Int, toIndex: Int){</code></pre></td>
-<td class="coverage">22x</td>
+<td class="coverage">!</td>
 </tr>
-<tr class="covered">
+<tr class="missed">
 <td class="num">223</td>
 <td class="src"><pre><code class="objc">        </code></pre></td>
-<td class="coverage">22x</td>
+<td class="coverage">!</td>
 </tr>
-<tr class="covered">
+<tr class="missed">
 <td class="num">224</td>
 <td class="src"><pre><code class="objc">        let element = array.remove(at: fromIndex)</code></pre></td>
-<td class="coverage">22x</td>
+<td class="coverage">!</td>
 </tr>
-<tr class="covered">
+<tr class="missed">
 <td class="num">225</td>
 <td class="src"><pre><code class="objc">        array.insert(element, at: toIndex)</code></pre></td>
-<td class="coverage">22x</td>
+<td class="coverage">!</td>
 </tr>
-<tr class="covered">
+<tr class="missed">
 <td class="num">226</td>
 <td class="src"><pre><code class="objc">        </code></pre></td>
-<td class="coverage">22x</td>
+<td class="coverage">!</td>
 </tr>
-<tr class="covered">
+<tr class="missed">
 <td class="num">227</td>
 <td class="src"><pre><code class="objc">        </code></pre></td>
-<td class="coverage">22x</td>
+<td class="coverage">!</td>
 </tr>
-<tr class="covered">
+<tr class="missed">
 <td class="num">228</td>
 <td class="src"><pre><code class="objc">    }</code></pre></td>
-<td class="coverage">22x</td>
+<td class="coverage">!</td>
 </tr>
 <tr class="never">
 <td class="num">229</td>
@@ -1165,7 +1165,7 @@
 <tr class="covered">
 <td class="num">231</td>
 <td class="src"><pre><code class="objc">    public func letSearch(keyword:String,completion: @escaping (_ search:Search) -&gt; Void) {</code></pre></td>
-<td class="coverage">22x</td>
+<td class="coverage">1x</td>
 </tr>
 <tr class="missed">
 <td class="num">232</td>
@@ -1195,12 +1195,12 @@
 <tr class="covered">
 <td class="num">237</td>
 <td class="src"><pre><code class="objc">        }</code></pre></td>
-<td class="coverage">22x</td>
+<td class="coverage">1x</td>
 </tr>
 <tr class="covered">
 <td class="num">238</td>
 <td class="src"><pre><code class="objc">        var items = self.itemsSearch</code></pre></td>
-<td class="coverage">22x</td>
+<td class="coverage">1x</td>
 </tr>
 <tr class="missed">
 <td class="num">239</td>
@@ -1250,42 +1250,42 @@
 <tr class="covered">
 <td class="num">248</td>
 <td class="src"><pre><code class="objc">        }</code></pre></td>
-<td class="coverage">22x</td>
+<td class="coverage">1x</td>
 </tr>
 <tr class="covered">
 <td class="num">249</td>
 <td class="src"><pre><code class="objc">        let aSearch:Search</code></pre></td>
-<td class="coverage">22x</td>
+<td class="coverage">1x</td>
 </tr>
 <tr class="covered">
 <td class="num">250</td>
 <td class="src"><pre><code class="objc">        if let i = items.index(where: { $0.keyword == keyword}) {</code></pre></td>
-<td class="coverage">44x</td>
+<td class="coverage">1x</td>
 </tr>
 <tr class="covered">
 <td class="num">251</td>
 <td class="src"><pre><code class="objc">            </code></pre></td>
-<td class="coverage">22x</td>
+<td class="coverage">1x</td>
 </tr>
 <tr class="covered">
 <td class="num">252</td>
 <td class="src"><pre><code class="objc">            aSearch =  (items[i])</code></pre></td>
-<td class="coverage">22x</td>
+<td class="coverage">1x</td>
 </tr>
 <tr class="covered">
 <td class="num">253</td>
 <td class="src"><pre><code class="objc">            aSearch.date = NSDate()</code></pre></td>
-<td class="coverage">22x</td>
+<td class="coverage">1x</td>
 </tr>
 <tr class="covered">
 <td class="num">254</td>
 <td class="src"><pre><code class="objc">            do {</code></pre></td>
-<td class="coverage">22x</td>
+<td class="coverage">1x</td>
 </tr>
 <tr class="covered">
 <td class="num">255</td>
 <td class="src"><pre><code class="objc">                try self.context?.save()</code></pre></td>
-<td class="coverage">22x</td>
+<td class="coverage">1x</td>
 </tr>
 <tr class="missed">
 <td class="num">256</td>
@@ -1300,52 +1300,52 @@
 <tr class="covered">
 <td class="num">258</td>
 <td class="src"><pre><code class="objc">            }</code></pre></td>
-<td class="coverage">22x</td>
+<td class="coverage">1x</td>
 </tr>
-<tr class="covered">
+<tr class="missed">
 <td class="num">259</td>
 <td class="src"><pre><code class="objc">            if  i != 0 {</code></pre></td>
-<td class="coverage">22x</td>
+<td class="coverage">!</td>
 </tr>
-<tr class="covered">
+<tr class="missed">
 <td class="num">260</td>
 <td class="src"><pre><code class="objc">                rearrange(array: &amp;items, fromIndex: i, toIndex: 0)</code></pre></td>
-<td class="coverage">22x</td>
+<td class="coverage">!</td>
 </tr>
 <tr class="covered">
 <td class="num">261</td>
 <td class="src"><pre><code class="objc">            }</code></pre></td>
-<td class="coverage">22x</td>
+<td class="coverage">1x</td>
 </tr>
 <tr class="covered">
 <td class="num">262</td>
 <td class="src"><pre><code class="objc">            </code></pre></td>
-<td class="coverage">22x</td>
+<td class="coverage">1x</td>
 </tr>
 <tr class="covered">
 <td class="num">263</td>
 <td class="src"><pre><code class="objc">            </code></pre></td>
-<td class="coverage">22x</td>
+<td class="coverage">1x</td>
 </tr>
 <tr class="covered">
 <td class="num">264</td>
 <td class="src"><pre><code class="objc">            </code></pre></td>
-<td class="coverage">22x</td>
+<td class="coverage">1x</td>
 </tr>
 <tr class="covered">
 <td class="num">265</td>
 <td class="src"><pre><code class="objc">            </code></pre></td>
-<td class="coverage">22x</td>
+<td class="coverage">1x</td>
 </tr>
 <tr class="covered">
 <td class="num">266</td>
 <td class="src"><pre><code class="objc">            </code></pre></td>
-<td class="coverage">22x</td>
+<td class="coverage">1x</td>
 </tr>
 <tr class="covered">
 <td class="num">267</td>
 <td class="src"><pre><code class="objc">        }else{</code></pre></td>
-<td class="coverage">22x</td>
+<td class="coverage">1x</td>
 </tr>
 <tr class="missed">
 <td class="num">268</td>
@@ -1365,12 +1365,12 @@
 <tr class="covered">
 <td class="num">271</td>
 <td class="src"><pre><code class="objc">        }</code></pre></td>
-<td class="coverage">22x</td>
+<td class="coverage">1x</td>
 </tr>
 <tr class="covered">
 <td class="num">272</td>
 <td class="src"><pre><code class="objc">        </code></pre></td>
-<td class="coverage">22x</td>
+<td class="coverage">1x</td>
 </tr>
 <tr class="missed">
 <td class="num">273</td>
@@ -1425,32 +1425,32 @@
 <tr class="covered">
 <td class="num">283</td>
 <td class="src"><pre><code class="objc">        }</code></pre></td>
-<td class="coverage">22x</td>
+<td class="coverage">1x</td>
 </tr>
 <tr class="covered">
 <td class="num">284</td>
 <td class="src"><pre><code class="objc">        self.itemsSearch = items</code></pre></td>
-<td class="coverage">22x</td>
+<td class="coverage">1x</td>
 </tr>
 <tr class="covered">
 <td class="num">285</td>
 <td class="src"><pre><code class="objc">        delegate?.updateView()</code></pre></td>
-<td class="coverage">22x</td>
+<td class="coverage">1x</td>
 </tr>
 <tr class="covered">
 <td class="num">286</td>
 <td class="src"><pre><code class="objc">        completion(aSearch)</code></pre></td>
-<td class="coverage">22x</td>
+<td class="coverage">1x</td>
 </tr>
 <tr class="covered">
 <td class="num">287</td>
 <td class="src"><pre><code class="objc">        </code></pre></td>
-<td class="coverage">22x</td>
+<td class="coverage">1x</td>
 </tr>
 <tr class="covered">
 <td class="num">288</td>
 <td class="src"><pre><code class="objc">    }</code></pre></td>
-<td class="coverage">22x</td>
+<td class="coverage">1x</td>
 </tr>
 <tr class="never">
 <td class="num">289</td>
@@ -1459,7 +1459,7 @@
 </tr>
 <tr class="never">
 <td class="num">290</td>
-<td class="src"><pre><code class="objc">    x</code></pre></td>
+<td class="src"><pre><code class="objc">    </code></pre></td>
 <td class="coverage"></td>
 </tr>
 <tr class="never">
@@ -1632,20 +1632,20 @@
 <td class="src"><pre><code class="objc">    </code></pre></td>
 <td class="coverage"></td>
 </tr>
-<tr class="covered">
+<tr class="missed">
 <td class="num">325</td>
 <td class="src"><pre><code class="objc">    func list()-&gt;[NewsFeed]{</code></pre></td>
-<td class="coverage">11x</td>
+<td class="coverage">!</td>
 </tr>
-<tr class="covered">
+<tr class="missed">
 <td class="num">326</td>
 <td class="src"><pre><code class="objc">        return self.itemsNewsFeed</code></pre></td>
-<td class="coverage">11x</td>
+<td class="coverage">!</td>
 </tr>
-<tr class="covered">
+<tr class="missed">
 <td class="num">327</td>
 <td class="src"><pre><code class="objc">    }</code></pre></td>
-<td class="coverage">11x</td>
+<td class="coverage">!</td>
 </tr>
 <tr class="never">
 <td class="num">328</td>

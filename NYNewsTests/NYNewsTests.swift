@@ -27,12 +27,12 @@ class NYNewsTests: XCTestCase {
         appDelegate = UIApplication.shared.delegate as? AppDelegate
         managedObjectContext = appDelegate?.persistentContainer.viewContext
         fetcher = Fetching()
-//        let storyboard =  UIStoryboard(name: storyboardName, bundle: nil)
-//        listNewsVC = storyboard.instantiateViewController(withIdentifier: ListNewsViewController.ID) as? ListNewsViewController
+        let storyboard =  UIStoryboard(name: storyboardName, bundle: nil)
+        listNewsVC = storyboard.instantiateViewController(withIdentifier: ListNewsViewController.ID) as? ListNewsViewController
         newsFeedsModel =  NewsFeedModel.init(fetcher: self.fetcher!)
 ////        listNewsVC?.fetchedResultsController = fetchedResultsController
 //        
-//        listNewsVC?.newsModel = newsFeedsModel
+        listNewsVC?.newsModel = newsFeedsModel
         
     }
     
@@ -86,11 +86,13 @@ class NYNewsTests: XCTestCase {
         QueryString =  "http://xxx.xxx.xxx/"
         fetch(query: QueryString)
         
-        
+        QueryString =  "http://xxx.xxx.xxx/"
+        fetch(query: QueryString)
+        fetcher?.operation?.cancel()
     }
     func fetch(query:String){
         fetcher?.fetch(withQueryString: query, failure: { (error) in
-            XCTAssertNotNil(error, "error Not nil")
+//            XCTAssertNotNil(error, "error Not nil")
         }, completion: { (dictionary) in
             XCTAssertNotNil(dictionary, "dictionary Not nil")
         })
@@ -160,12 +162,12 @@ class NYNewsTests: XCTestCase {
         
     }
     
-    func testPerformanceExample() {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
-//            self.testCheckListAfterComplete()
-        }
-    }
+//    func testPerformanceExample() {
+//        // This is an example of a performance test case.
+//        self.measure {
+//            // Put the code you want to measure the time of here.
+//
+//        }
+//    }
     
 }
