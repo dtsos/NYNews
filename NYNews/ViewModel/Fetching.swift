@@ -23,8 +23,13 @@ class Fetching: FetchingProtocol {
         request.httpMethod = "GET"
         
         operation = URLSession.shared.dataTask(with: request, completionHandler: { (data: Data?, response: URLResponse?, error: Error?) in
+            
+            guard error != nil else {
+                failure(error)
+                return
+            }
             guard data != nil else{
-                failure(nil)
+                failure(error)
                 return
             }
             do {

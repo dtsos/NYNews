@@ -8,16 +8,7 @@
 
 import Foundation
 import UIKit
-class Constant {
-    static let RootServerSearch = "https://api.nytimes.com/svc/search/v2/"
-    static let RootServerImage = "https://www.nytimes.com/"
-    static let RootServerTopStories = "https://api.nytimes.com/svc/topstories/v2/"
-    static let URLArticleSearch = "\(RootServerSearch)articlesearch.json?"
-    static let URLTrending = "\(RootServerTopStories)home.json?"
-    static let paramAPIKey = "api-key="
-    static let paramAPIValue = "9b693ffaa5fe451090146e5c90fbed78"
-    static let paramAPIKeyValue = "\(paramAPIKey)\(paramAPIValue)"
-}
+
 extension URLResponse {
     func isHTTPResponseValid() -> Bool {
         guard let response = self as? HTTPURLResponse else {
@@ -53,9 +44,12 @@ extension NSDate {
         
         
         
+        let currentDate =  NSDate()
         
-        let todayDate: NSDate = NSDate()
-        var ti: Double = self.timeIntervalSince(todayDate as Date)
+        
+        
+        
+        var ti: Double = self.timeIntervalSince(currentDate as Date)
         ti = ti * -1
         if ti < 1 {
             return "now"
@@ -75,14 +69,14 @@ extension NSDate {
             let diff: Int = Int(round(ti / 60 / 60 / 24))
             return "\(diff) days ago"
         }
-        else {
-            
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "EEE, dd MMM yyyy"
-            //            dateFormatter.locale = Locale.init(identifier: "en_SG")
-            let stringDate = dateFormatter.string(from: self as Date)
-            return stringDate
-        }
+        
+        
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "EEE, dd MMM yyyy"
+        //            dateFormatter.locale = Locale.init(identifier: "en_SG")
+        let stringDate = dateFormatter.string(from: self as Date)
+        return stringDate
+        
         
         
     }
@@ -90,20 +84,5 @@ extension NSDate {
     
 }
 
-extension UIScrollView {
-    
-    
-    var isAtBottom: Bool {
-        return contentOffset.y >= verticalOffsetForBottom
-    }
-    
-    
-    var verticalOffsetForBottom: CGFloat {
-        let scrollViewHeight = bounds.height
-        let scrollContentSizeHeight = contentSize.height
-        let bottomInset = contentInset.bottom
-        let scrollViewBottomOffset = scrollContentSizeHeight + bottomInset - scrollViewHeight
-        return scrollViewBottomOffset
-    }
-}
+
 

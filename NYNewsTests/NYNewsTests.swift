@@ -1,4 +1,4 @@
-//
+
 //  NYNewsTests.swift
 //  NYNewsTests
 //
@@ -20,53 +20,19 @@ class NYNewsTests: XCTestCase {
     
     var fetcher:Fetching?
     
-    var fetchedResultsController: NSFetchedResultsController<NewsFeed> {
-        if _fetchedResultsController != nil {
-            return _fetchedResultsController!
-        }
-        
-        let fetchRequest: NSFetchRequest<NewsFeed> = NewsFeed.fetchRequest()
-        
-        
-        fetchRequest.fetchBatchSize = 20
-        fetchRequest.predicate = NSPredicate(format: "page <= 0 AND isHeadline = true")
-        
-        
-        
-        
-        
-        let sortDescriptor = NSSortDescriptor(key: "dateModified", ascending: false)
-        
-        fetchRequest.sortDescriptors = [sortDescriptor]
-        
-        let aFetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: self.managedObjectContext!, sectionNameKeyPath: nil, cacheName:nil)
-        
-        _fetchedResultsController = aFetchedResultsController
-        
-        do {
-            try _fetchedResultsController!.performFetch()
-        } catch {
-            
-            let nserror = error as NSError
-            fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
-        }
-        
-        return _fetchedResultsController!
-    }
-    
-    var _fetchedResultsController: NSFetchedResultsController<NewsFeed>? = nil
+   
     override func setUp() {
         super.setUp()
         // Put setup code here. This method is called before the invocation of each test method in the class.
         appDelegate = UIApplication.shared.delegate as? AppDelegate
         managedObjectContext = appDelegate?.persistentContainer.viewContext
         fetcher = Fetching()
-        let storyboard =  UIStoryboard(name: storyboardName, bundle: nil)
-        listNewsVC = storyboard.instantiateViewController(withIdentifier: ListNewsViewController.ID) as? ListNewsViewController
+//        let storyboard =  UIStoryboard(name: storyboardName, bundle: nil)
+//        listNewsVC = storyboard.instantiateViewController(withIdentifier: ListNewsViewController.ID) as? ListNewsViewController
         newsFeedsModel =  NewsFeedModel.init(fetcher: self.fetcher!)
-//        listNewsVC?.fetchedResultsController = fetchedResultsController
-        
-        listNewsVC?.newsModel = newsFeedsModel
+////        listNewsVC?.fetchedResultsController = fetchedResultsController
+//        
+//        listNewsVC?.newsModel = newsFeedsModel
         
     }
     
@@ -75,6 +41,61 @@ class NYNewsTests: XCTestCase {
         releaseAll()
         super.tearDown()
     }
+    
+    
+    func testDateDiff() {
+        let dateNil:NSDate? =  nil
+        let stringDate:String? = dateNil?.dateDiff()
+        
+        XCTAssertNil(dateNil,"Must nil")
+         XCTAssertTrue(dateNil == nil && stringDate == nil, "is Nil")
+        
+        let dateNow:NSDate =  NSDate()
+        dateDiffTest(dateNow)
+        
+        let halfminute = Calendar.current.date(byAdding: .second, value: -30, to: dateNow as Date)
+        dateDiffTest(halfminute! as NSDate)
+        
+        
+        let aminute = Calendar.current.date(byAdding: .minute, value: -1, to: dateNow as Date)
+        dateDiffTest(aminute! as NSDate)
+        
+        let aHour = Calendar.current.date(byAdding: .hour, value: -1, to: dateNow as Date)
+        dateDiffTest(aHour! as NSDate)
+        
+       let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: dateNow as Date)
+        dateDiffTest(yesterday! as NSDate)
+        
+        
+        let longTime = Calendar.current.date(byAdding: .year, value: -10, to: dateNow as Date)
+        dateDiffTest(longTime! as NSDate)
+        
+    }
+    
+    func dateDiffTest(_ date:NSDate){
+        let stringDate =  date.dateDiff()
+        XCTAssertNotNil(!(stringDate?.isEmpty)!, "Is Not Empty")
+    }
+    
+    func testFecthing(){
+        var QueryString =  "\(Constant.URLArticleSearch)\(Constant.paramAPIKeyValue)&page=0&sort=newest"
+        fetch(query: QueryString)
+        
+        QueryString = "http://rss.cnn.com/rss/cnn_topstories.rss"
+        fetch(query: QueryString)
+        QueryString =  "http://xxx.xxx.xxx/"
+        fetch(query: QueryString)
+        
+        
+    }
+    func fetch(query:String){
+        fetcher?.fetch(withQueryString: query, failure: { (error) in
+            XCTAssertNotNil(error, "error Not nil")
+        }, completion: { (dictionary) in
+            XCTAssertNotNil(dictionary, "dictionary Not nil")
+        })
+    }
+    
     func releaseAll(){
         appDelegate = nil
         newsFeedsModel = nil
@@ -114,27 +135,27 @@ class NYNewsTests: XCTestCase {
         listNewsVC?.didPullToRefresh()
         
     }
-    func testGetListViewModel(){
-        
-        listNewsVC?.newsModel = newsFeedsModel
-        newsFeedsModel?.readyVC()
-        let indexPath:IndexPath =  IndexPath(row: 0, section: 0)
-        XCTAssertTrue(listNewsVC?.newsModel?.itemForRow(at: indexPath) != nil)
-    }
-
-    
+//    func testGetListViewModel(){
+//        
+//        listNewsVC?.newsModel = newsFeedsModel
+//        newsFeedsModel?.readyVC()
+//        let indexPath:IndexPath =  IndexPath(row: 0, section: 0)
+//        XCTAssertTrue(listNewsVC?.newsModel?.itemForRow(at: indexPath) != nil)
+//    }
+//
+//    
     func testCheckListAfterComplete() {
-        let aPage = 10
-        self.newsFeedsModel?.checkServer(page: Int16(aPage), beginUpdateView: {
-            debugPrint("update")
-        }, failed: {
-            debugPrint("failed")
-            
-        }, completion: { (page) in
-
-            XCTAssertEqual(aPage,Int(page),"it must be equal")
-        
-        })
+//        let aPage = 0
+//        self.newsFeedsModel?.checkServer(page: Int16(aPage), beginUpdateView: {
+//            debugPrint("update")
+//        }, failed: {
+//            debugPrint("failed")
+//            
+//        }, completion: { (page) in
+//
+//            XCTAssertEqual(aPage,Int(page),"it must be equal")
+//        
+//        })
         
         
     }
@@ -143,7 +164,7 @@ class NYNewsTests: XCTestCase {
         // This is an example of a performance test case.
         self.measure {
             // Put the code you want to measure the time of here.
-            self.testCheckListAfterComplete()
+//            self.testCheckListAfterComplete()
         }
     }
     

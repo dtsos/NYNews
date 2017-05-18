@@ -27,13 +27,11 @@ class SearchModel{
         fetchRequest.sortDescriptors = [sortDescriptor]
         
         var result :[Search]?
-        do {
-            result = try self.context?.fetch(fetchRequest)
-        } catch {
-            self.listSearch = nil
-        }
         
-        self.listSearch = result
+        result = (try! self.context?.fetch(fetchRequest))
+        
+        
+        self.listSearch = result ?? nil
         
     }
     var listSearch:[Search]?
@@ -70,7 +68,9 @@ class SearchNewsFeedModel:NSObject {
     func isNeedUpdateServer(dictionary:[String:AnyObject]?,page:Int16 ) -> Bool {
         
         
-        
+        guard search?.listNews != nil else {
+            return true
+        }
         
         
         let tempitems:[NewsFeed] = search?.listNews?.allObjects as! [NewsFeed]
@@ -287,12 +287,6 @@ class SearchNewsFeedModel:NSObject {
         
     }
     
-    //    fetch search
-    func checkCoreData(){
-        
-        
-        delegate?.updateView()
-    }
     
     // return number sections
     func numberOfSections() -> Int {
