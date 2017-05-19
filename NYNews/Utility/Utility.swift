@@ -23,7 +23,7 @@ extension URLSession {
     func cancelOperation(stringUrl:String?)
     {
         if stringUrl != nil && (stringUrl?.characters.count)! > 0{
-            URLSession.shared.getTasksWithCompletionHandler { (dataStacks, uploadStacks, downloadStacks) in
+            self.getTasksWithCompletionHandler { (dataStacks, uploadStacks, downloadStacks) in
                 for dataStack in dataStacks {
                     
                     if dataStack.originalRequest?.url?.absoluteString == stringUrl {

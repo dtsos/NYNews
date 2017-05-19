@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F22A2F271ECECECC009F0442 /* TestNetworking.swift in Sources */ = {isa = PBXBuildFile; fileRef = F22A2F261ECECECC009F0442 /* TestNetworking.swift */; };
 		F253DAEA1EBF0563007066D9 /* DetailNewsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F253DAE91EBF0563007066D9 /* DetailNewsViewController.swift */; };
 		F2670F7C1ECE00FF00E708BA /* Constant.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2670F7B1ECE00FF00E708BA /* Constant.swift */; };
 		F2670F7E1ECE01CA00E708BA /* UtilityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2670F7D1ECE01CA00E708BA /* UtilityView.swift */; };
@@ -43,6 +44,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		F22A2F261ECECECC009F0442 /* TestNetworking.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestNetworking.swift; sourceTree = "<group>"; };
 		F253DAE91EBF0563007066D9 /* DetailNewsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DetailNewsViewController.swift; sourceTree = "<group>"; };
 		F2670F7B1ECE00FF00E708BA /* Constant.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Constant.swift; sourceTree = "<group>"; };
 		F2670F7D1ECE01CA00E708BA /* UtilityView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UtilityView.swift; sourceTree = "<group>"; };
@@ -130,6 +132,7 @@
 			isa = PBXGroup;
 			children = (
 				F2731F011EBCEC390041F79C /* NYNewsTests.swift */,
+				F22A2F261ECECECC009F0442 /* TestNetworking.swift */,
 				F2731F031EBCEC390041F79C /* Info.plist */,
 				F2D804001EC014200002B8E7 /* SearchTest.swift */,
 			);
@@ -339,6 +342,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F2731F021EBCEC390041F79C /* NYNewsTests.swift in Sources */,
+				F22A2F271ECECECC009F0442 /* TestNetworking.swift in Sources */,
 				F2D804011EC014200002B8E7 /* SearchTest.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

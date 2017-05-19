@@ -58,7 +58,6 @@ class NewsModel {
         
         
         self.news =  NewsFeed(context:self.context!)
-        
         self.id =  dictionary["_id"] as? String ?? ""
         if let headline = dictionary["headline"]{
             self.title = headline["main"] as? String ?? ""
@@ -133,9 +132,7 @@ class NewsModel {
     
     // create News Feed
     func createNewsFeed(){
-        if news == nil {
-            news = NewsFeed(context:self.context!)
-        }
+        
         news?.id =  self.id ?? ""
         news?.title = self.title ?? ""
         news?.url = self.url ?? ""
@@ -161,12 +158,9 @@ class NewsModel {
     }
     func saveCoreData(){
         self.news?.dateModified = NSDate()
-        do {
-            try context?.save()
-        } catch   {
-            let nserror = error as NSError
-            fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
-        }
+        
+        (try! context?.save())
+        
         
     }
     
@@ -196,7 +190,7 @@ class NewsFeedModel : NSObject {
     init(fetcher: Fetching){
         self.fetcher = fetcher
         
-       
+        
         
         self.page = 0
         
@@ -216,11 +210,9 @@ class NewsFeedModel : NSObject {
         fetchRequest.sortDescriptors = [sortDescriptor]
         
         var result :[NewsFeed]?
-        do {
-            result = try self.context?.fetch(fetchRequest)
-        } catch {
-            return nil
-        }
+        
+        result = (try! self.context?.fetch(fetchRequest))
+        
         
         return result!
     }
@@ -235,7 +227,7 @@ class NewsFeedModel : NSObject {
         var tempitems:[NewsFeed]? = [NewsFeed]()
         if dictionary == nil {
             tempitems = listNews(page: page)!
-            return (true, tempitems)
+            return (false, tempitems)
         }
         
         if self.page != page {
@@ -250,19 +242,21 @@ class NewsFeedModel : NSObject {
         if tempitems?.count == 0 {
             return (true, tempitems)
         }else{
-            let index = Int(10 * page)
-            if index >= (tempitems?.count)!{
-                return (true, tempitems)
+//            let index = Int(10 * page)
+//            if index >= (tempitems?.count)!{
+//                return (true, tempitems)
+//            }
+            
+            
+            
+            let firstNews:NewsFeed = (tempitems?.first)!
+            guard let id:String = dictionary!["_id"] as? String else{
+                return (false, tempitems)
             }
-            if  dictionary != nil {
-                
-                
-                let firstNews:NewsFeed = tempitems![index]
-                let id:String = dictionary!["_id"] as! String
-                if  firstNews.id != id{
-                    return (true,tempitems)
-                }
+            if  firstNews.id != id{
+                return (true,tempitems)
             }
+            
         }
         return (false, tempitems)
         
@@ -280,7 +274,7 @@ class NewsFeedModel : NSObject {
     
     
     //check server if have different list news or is empty will insert new data
-    func checkServer(page:Int16,beginUpdateView: @escaping () -> Void,failed: @escaping () -> Void,completion: @escaping (_ page:Int16) -> Void){
+    func checkServer(page:Int16,beginUpdateView:  @escaping () -> Void,failed:  @escaping () -> Void,completion: @escaping (_ page:Int16) -> Void){
         if stillDownload == true  {
             
             return
@@ -364,8 +358,9 @@ class NewsFeedModel : NSObject {
             
             self.page = page
             self.delegate?.updateListNewsView()
-            completion(page)
             self.stillDownload = false
+            completion(page)
+            
         }
         
     }
