@@ -41,7 +41,7 @@ class SearchModel{
 }
 class SearchNewsFeedModel:NSObject {
     var delegate:SearchFeedModelDelegate?
-    fileprivate var itemsNewsFeed:[NewsFeed] = [NewsFeed]()
+    var itemsNewsFeed:[NewsFeed] = [NewsFeed]()
     var itemsSearch:[Search] = [Search]()
     var search:Search?
     var fetcher:Fetching
@@ -67,29 +67,33 @@ class SearchNewsFeedModel:NSObject {
     
     //func needUpdate News
     func isNeedUpdateServer(dictionary:[String:AnyObject]?,page:Int16 ) -> Bool {
+        guard dictionary != nil else {
+            return false
+        }
         
-        
-        guard search?.listNews != nil else {
+        guard (search?.listNews?.allObjects.count)! > 0 else {
             return true
         }
         
         
-        let tempitems:[NewsFeed] = search?.listNews?.allObjects as! [NewsFeed]
+        var tempitems:[NewsFeed] = search?.listNews?.allObjects as! [NewsFeed]
+        tempitems = tempitems.filter{ ($0 as NewsFeed).page == page }
         if tempitems.count == 0 {
             return true
         }else{
-            let index = Int(10 * page)
-            if index >= tempitems.count{
-                return true
+            let index = 0
+            
+            
+            
+            
+            let firstNews:NewsFeed = tempitems[index]
+            guard let id:String = dictionary!["_id"] as? String else{
+                return false
             }
-            if  dictionary != nil {
+           
+            if  firstNews.id != id{
+                return true
                 
-                
-                let firstNews:NewsFeed = tempitems[index]
-                let id:String = dictionary!["_id"] as! String
-                if  firstNews.id != id{
-                    return true
-                }
             }
         }
         return false
@@ -104,10 +108,10 @@ class SearchNewsFeedModel:NSObject {
     }
     // check server if item diffrent update
     func checkServer(page:Int16,search:Search,beginUpdateView: @escaping () -> Void,failed: @escaping () -> Void,completion: @escaping (_ page:Int16) -> Void){
-        if page == 0 {
-            self.cancelOperation()
-        }
-        
+        //        if page == 0 {
+        //            self.cancelOperation()
+        //        }
+        weak var weakSelf =  self
         if stillDownload == true  && page > 0 {
             
             return
@@ -116,18 +120,19 @@ class SearchNewsFeedModel:NSObject {
         self.isNews = true
         lastStringQuery =  "\(Constant.URLArticleSearch)\(Constant.paramAPIKeyValue)&page=\(page)&q=\(search.keyword!)&sort=newest"
         fetcher.fetch(withQueryString: lastStringQuery!, failure: { (error) in
-            self.stillDownload =  false
+            weakSelf?.stillDownload =  false
+            debugPrint(error)
             failed()
             
         }) { (dictionary) in
             guard let response: [String:AnyObject] =  dictionary["response"] as? [String:AnyObject] else{
-                self.stillDownload = false
+                weakSelf?.stillDownload = false
                 failed()
                 
                 return
             }
             guard let data: [[String:AnyObject]] = response["docs"] as? [[String : AnyObject]]  else {
-                self.stillDownload = false
+                weakSelf?.stillDownload = false
                 failed()
                 return
             }
@@ -137,61 +142,61 @@ class SearchNewsFeedModel:NSObject {
             
             let dictListnews:[String:AnyObject]? =  (itemDictionaries.count >= 1 ?  itemDictionaries.first : nil )
             
-            if self.isNeedUpdateServer(dictionary:dictListnews, page: page) || itemDictionaries.count == 0{
+            if (weakSelf?.isNeedUpdateServer(dictionary:dictListnews, page: page))! || itemDictionaries.count == 0{
                 beginUpdateView()
-                
-                var items:[NewsFeed] = search.listNews?.allObjects as! [NewsFeed]
-                items = items.sorted(by: {$0.dateModified?.compare(($1.dateModified as Date?)!) == ComparisonResult.orderedDescending})
-                items = items.filter({$0.page == page})
-                let indexStart = 0
-                
-                if indexStart < (items.count) {
-                    self.context?.performAndWait {
-                        for i in indexStart..<items.count{
-                            //                for aNewsFeed in items! {
-                            
-                            let aNewsFeed:NewsFeed = items[i]
-                            self.context?.delete(aNewsFeed)
-                            
-                            do {
-                                try self.context?.save()
-                            }catch{
-                                debugPrint(error)
+                if let listNews = search.listNews  {
+                    var items:[NewsFeed] = listNews.allObjects as! [NewsFeed]
+                    items = items.sorted(by: {$0.dateModified?.compare(($1.dateModified as Date?)!) == ComparisonResult.orderedDescending})
+                    items = items.filter({$0.page == page})
+                    let indexStart = 0
+                    
+                    if indexStart < (items.count) {
+                        weakSelf?.context?.performAndWait {
+                            for i in indexStart..<items.count{
+                                //                for aNewsFeed in items! {
+                                
+                                let aNewsFeed:NewsFeed = items[i]
+                                weakSelf?.context?.delete(aNewsFeed)
+                                
+                                
+                                (try! weakSelf?.context?.save())
+                                
                             }
                         }
                     }
-                }
-                if page == 0{
-                    self.itemsNewsFeed.removeAll()
-                }
-                self.context?.performAndWait {
-                    for aData in itemDictionaries {
-                        
-                        let newsModel =  NewsModel.init(fetcher: self.fetcher,  dictionary: aData,search:search)
-                        
-                        newsModel.news?.isHeadline = false
-                        newsModel.news?.page = page
-                        newsModel.news?.whichSearch = search
-                        newsModel.news?.dateModified = NSDate()
-                        //                    search.add(newsModel)
-                        
-                        newsModel.save()
-                        
-                        self.itemsNewsFeed.append(newsModel.news!)
-                        
-                        
+                    if page == 0{
+                        weakSelf?.itemsNewsFeed.removeAll()
+                    }
+                    weakSelf?.context?.performAndWait {
+                        for aData in itemDictionaries {
+                            
+                            let newsModel =  NewsModel.init(fetcher: (weakSelf?.fetcher)!,  dictionary: aData,search:search)
+                            
+                            newsModel.news?.isHeadline = false
+                            newsModel.news?.page = page
+                            newsModel.news?.whichSearch = search
+                            newsModel.news?.dateModified = NSDate()
+                            //                    search.add(newsModel)
+                            
+                            newsModel.save()
+                            
+                            weakSelf?.itemsNewsFeed.append(newsModel.news!)
+                            
+                            
+                        }
                     }
                 }
             }else{
                 let arrayAllNews: [NewsFeed] = search.listNews?.allObjects as! [NewsFeed]
                 let arrayNews = arrayAllNews.filter{ ($0 as NewsFeed).page == page }
-                self.itemsNewsFeed.append(contentsOf: arrayNews )
+                weakSelf?.itemsNewsFeed.append(contentsOf: arrayNews )
                 
             }
-            self.page = page
-            self.delegate?.updateView()
+            weakSelf?.page = page
+            weakSelf?.delegate?.updateView()
+            weakSelf?.stillDownload = false
             completion(page)
-            self.stillDownload = false
+            
         }
         
     }
@@ -231,6 +236,8 @@ class SearchNewsFeedModel:NSObject {
     public func letSearch(keyword:String,completion: @escaping (_ search:Search) -> Void) {
         if self.search?.keyword ==  keyword {
             self.isNews =  true
+            self.stillDownload =  false
+            self.cancelOperation()
             completion(self.search!)
             
             return
@@ -242,7 +249,11 @@ class SearchNewsFeedModel:NSObject {
             
             delegate?.updateView()
             self.search =  aSearch
+            self.stillDownload =  false
+            self.cancelOperation()
+            
             createListNews()
+            self.isNews =  false
             completion(aSearch)
             return
             
@@ -280,8 +291,11 @@ class SearchNewsFeedModel:NSObject {
             
         }
         self.search =  aSearch
-        createListNews()
         
+        self.stillDownload =  false
+        self.cancelOperation()
+        createListNews()
+        self.isNews =  false
         self.itemsSearch = items
         delegate?.updateView()
         completion(aSearch)
@@ -293,9 +307,10 @@ class SearchNewsFeedModel:NSObject {
     func numberOfSections() -> Int {
         if isNews == true {
             return 1
-        }else{
-            return 1
         }
+        
+        return 1
+        
         
     }
     
@@ -304,17 +319,23 @@ class SearchNewsFeedModel:NSObject {
         
         
         if isNews == true {
+            //            if self.itemsNewsFeed.count == 0 {
+            //                return 0
+            //            }
             return self.itemsNewsFeed.count
-        }else{
-            return self.itemsSearch.count
         }
+        
+        return self.itemsSearch.count
+        
         
     }
     //get Article
-    func itemForRow(at indexPath: IndexPath) -> Any {
+    func itemForRow(at indexPath: IndexPath) -> Any? {
         
         if isNews == true {
-            
+            //            if self.itemsNewsFeed.count == 0 {
+            //                return nil
+            //            }
             return self.itemsNewsFeed[indexPath.row]
             
         }

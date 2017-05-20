@@ -12,10 +12,9 @@ import CoreData
 class NYNewsTests: XCTestCase {
     var appDelegate : AppDelegate?
     var managedObjectContext: NSManagedObjectContext?
-    var listNewsVC : ListNewsViewController?
+    
     var newsFeedsModel :NewsFeedModel?
-    let storyboardName = "Main"
-    static let viewName = "ListNewsVC"
+
     var arrayNewsFeedPage0 = [NewsFeed]()
     var fetcher:Fetching = Fetching()
     
@@ -26,12 +25,10 @@ class NYNewsTests: XCTestCase {
         appDelegate = UIApplication.shared.delegate as? AppDelegate
         managedObjectContext = appDelegate?.persistentContainer.viewContext
         
-        let storyboard =  UIStoryboard(name: storyboardName, bundle: nil)
-        listNewsVC = storyboard.instantiateViewController(withIdentifier: ListNewsViewController.ID) as? ListNewsViewController
-        newsFeedsModel =  NewsFeedModel.init(fetcher: self.fetcher)
+               newsFeedsModel =  NewsFeedModel.init(fetcher: self.fetcher)
         ////        listNewsVC?.fetchedResultsController = fetchedResultsController
         //
-        listNewsVC?.newsModel = newsFeedsModel
+        
         
     }
     
@@ -41,11 +38,11 @@ class NYNewsTests: XCTestCase {
         super.tearDown()
     }
     func releaseAll(){
+        newsFeedsModel?.cancelOperation()
         appDelegate = nil
         newsFeedsModel = nil
         managedObjectContext = nil
-        
-        listNewsVC =  nil
+    
     }
     
     
@@ -91,26 +88,11 @@ class NYNewsTests: XCTestCase {
     //        cancelOperation(stringUrl: QueryString)
     //    }
     //
-    func cancelOperation(stringUrl:String?)
-    {
-        if stringUrl != nil && (stringUrl?.characters.count)! > 0{
-            URLSession.shared.getTasksWithCompletionHandler { (dataStacks, uploadStacks, downloadStacks) in
-                for dataStack in dataStacks {
-                    
-                    if dataStack.originalRequest?.url?.absoluteString == stringUrl {
-                        dataStack.cancel()
-                        return
-                    }
-                    
-                }
-            }
-        }
-    }
-    
+   
     
     
     func testCheckServer(){
-        debugPrint(fetcher)
+        
         newsFeedsModel?.checkServer(page: 0, beginUpdateView: {
             debugPrint("update")
         }, failed: {
@@ -212,17 +194,8 @@ class NYNewsTests: XCTestCase {
         aNewsModel.save()
         
     }
-    func testPull() {
-        listNewsVC?.didPullToRefresh()
-        
-    }
-    func testGetListViewModel(){
-        
-        listNewsVC?.newsModel = newsFeedsModel
-        newsFeedsModel?.readyVC()
-//        let indexPath:IndexPath =  IndexPath(row: 0, section: 0)
-//        XCTAssertTrue(listNewsVC?.newsModel?.itemForRow(at: indexPath) != nil)
-    }
+    
+    
     //
     //
     func testCheckListAfterComplete() {
@@ -299,6 +272,8 @@ class NYNewsTests: XCTestCase {
         checkUpdateItems = newsFeedsModel?.isNeedUpdateServer(dictionary: aDictionary, page: 4)
         checkUpdateItems = newsFeedsModel?.isNeedUpdateServer(dictionary: aDictionary, page: 4)
         
+        XCTAssertTrue((newsFeedsModel?.list().count)! >= 0 ,"Its created")
+        
         
         
         //        XCTAssertFalse((checkUpdateItems?.update)! ,"It mush be false")
@@ -319,7 +294,8 @@ class NYNewsTests: XCTestCase {
         
     }
     
-    func testServer(){
+    func serverCheck(){
+        
         self.callServer(page: -1)
         self.callServer(page: 0)
         
@@ -348,12 +324,12 @@ class NYNewsTests: XCTestCase {
         
     }
     
-    //    func testPerformanceExample() {
-    //        // This is an example of a performance test case.
-    //        self.measure {
-    //            // Put the code you want to measure the time of here.
-    //            self.testCheckListAfterComplete()
-    //        }
-    //    }
-    //
+        func testPerformanceExample() {
+            // This is an example of a performance test case.
+            self.measure {
+                // Put the code you want to measure the time of here.
+                self.serverCheck()
+            }
+        }
+    
 }

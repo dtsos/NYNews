@@ -13,17 +13,17 @@ protocol FetchingProtocol {
      
 }
 class Fetching: FetchingProtocol {
-    var operation:URLSessionDataTask?
     //fetching
+    
     func fetch(withQueryString queryString: String,failure: @escaping (Error?) -> Void, completion: @escaping (NSDictionary) -> Void) {
         debugPrint(queryString)
         let encoded = queryString.addingPercentEncoding(withAllowedCharacters: CharacterSet.urlQueryAllowed)!
         let url = URL(string: encoded)!
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
-        debugPrint(encoded)
-        operation = URLSession.shared.dataTask(with: request, completionHandler: { (data: Data?, response: URLResponse?, error: Error?) in
-            
+        
+        
+        let task = URLDataTask.init(session: URLSession.shared, url: url)
+        task.dataTask { (data, response, error) in
+            debugPrint(url)
             guard response?.isHTTPResponseValid() == true else {
                 failure(error)
                 return
@@ -34,6 +34,8 @@ class Fetching: FetchingProtocol {
             }
             do {
                 let object = try JSONSerialization.jsonObject(with: data!, options: JSONSerialization.ReadingOptions.allowFragments) as? NSDictionary
+                
+                
                 debugPrint("docatch")
                 completion(object!)
                 
@@ -41,9 +43,15 @@ class Fetching: FetchingProtocol {
                 failure(error)
                 debugPrint(error)
             }
-            
-        })
-        operation?.resume()
+        }.resume()
+        
+//        URLSession.shared.dataTask(with: request, completionHandler: { (data: Data?, response: URLResponse?, error: Error?) in
+//            debugPrint(request)
+//            
+//            
+//           
+//            
+//        }).resume()
     }
     
     

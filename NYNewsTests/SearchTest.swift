@@ -29,8 +29,8 @@ class SearchTest: XCTestCase {
         appDelegate = UIApplication.shared.delegate as? AppDelegate
         managedObjectContext = appDelegate?.persistentContainer.viewContext
         fetcher = Fetching()
-        let storyboard =  UIStoryboard(name: storyboardName, bundle: nil)
-        listNewsVC = storyboard.instantiateViewController(withIdentifier: ListNewsViewController.ID) as? ListNewsViewController
+        //        let storyboard =  UIStoryboard(name: storyboardName, bundle: nil)
+        //        listNewsVC = storyboard.instantiateViewController(withIdentifier: ListNewsViewController.ID) as? ListNewsViewController
         
         searchFeedModel =  SearchNewsFeedModel.init(fetching: self.fetcher!)
         let aSearchModel =  SearchModel.init()
@@ -42,6 +42,7 @@ class SearchTest: XCTestCase {
     
     override func tearDown() {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
+        self.searchFeedModel?.cancelOperation()
         releaseAll()
         super.tearDown()
     }
@@ -58,14 +59,83 @@ class SearchTest: XCTestCase {
         listNewsVC =  nil
     }
     
-  
+    func testNeedUpdate() {
+        searchFeedModel?.search = searchFeedModel?.createNewSearch(keyword: "testingX")
+        var checkUpdateItems = searchFeedModel?.isNeedUpdateServer(dictionary: nil, page: 0)
+        XCTAssertFalse(checkUpdateItems! ,"It mush be false")
+        checkUpdateItems = searchFeedModel?.isNeedUpdateServer(dictionary: [String : AnyObject](), page: 0)
+        searchFeedModel?.page = 0
+        var aDictionary = [String:AnyObject]()
+        
+        aDictionary ["web_url"] = "https://www.nytimes.com/aponline/2017/05/08/us/ap-us-mtv-movie-and-tv-awards.html" as AnyObject
+        aDictionary["snippet"] = "Snipppet" as AnyObject
+        aDictionary["headline"] = ["main":"this title"] as AnyObject
+        
+        
+        aDictionary["pub_date"] = "2017-05-08T04:24:44+0007" as AnyObject
+        
+        aDictionary["_id"] = "590ff3167c459f24986de3dx" as AnyObject
+        
+        checkUpdateItems = searchFeedModel?.isNeedUpdateServer(dictionary: aDictionary, page: 1)
+        searchFeedModel?.page = 1
+        //        var arrayNews =newsFeedsModel?.listNews(page: 0)
+        //        for news in arrayNews {
+        //            self.managedObjectContext?.delete(news)
+        //        }
+        createdDummyArrayFeed(page: 2,max: 10,search: (self.searchFeedModel?.search)!)
+        checkUpdateItems = searchFeedModel?.isNeedUpdateServer(dictionary: aDictionary, page: 2)
+        createdDummyArrayFeed(page: 3,max: 5,search: (self.searchFeedModel?.search)!)
+        aDictionary["_id"] = nil
+        checkUpdateItems = searchFeedModel?.isNeedUpdateServer(dictionary: aDictionary, page: 3)
+        
+        
+        createdDummyArrayFeed(page: 4,max: 5,search:(self.searchFeedModel?.search)!)
+        aDictionary["_id"] = "idSame" as AnyObject
+        checkUpdateItems = searchFeedModel?.isNeedUpdateServer(dictionary: aDictionary, page: 4)
+        checkUpdateItems = searchFeedModel?.isNeedUpdateServer(dictionary: aDictionary, page: 4)
+        
+        
+        
+        //        XCTAssertFalse((checkUpdateItems?.update)! ,"It mush be false")
+        
+    }
+    func createdDummyArrayFeed(page:Int16,max:Int,search:Search){
+        var arrayFeedPage:[NewsFeed] =  [NewsFeed]()
+        for i  in 0...(max - 1) {
+            var aDictionary = [String:AnyObject]()
+            
+            aDictionary ["web_url"] = "https://www.nytimes.com/aponline/2017/05/08/us/ap-us-mtv-movie-and-tv-awards.html" as AnyObject
+            aDictionary["snippet"] = "Snipppet" as AnyObject
+            aDictionary["headline"] = ["main":"this title"] as AnyObject
+            
+            
+            aDictionary["pub_date"] = "2017-05-08T04:24:44+000\(i)" as AnyObject
+            
+            aDictionary["_id"] = "590ff3167c459f24986de3d\(i)" as AnyObject
+            if page == 4 {
+                aDictionary["_id"] = "idSame" as AnyObject
+            }
+            let aNewsModel = NewsModel.init(fetcher: self.fetcher!, dictionary: aDictionary)
+            aNewsModel.news?.page = page
+            aNewsModel.news?.isHeadline =  false
+            aNewsModel.news?.whichSearch = search
+            aNewsModel.save()
+            arrayFeedPage.append(aNewsModel.news!)
+            
+            
+        }
+    }
+
+    
     func testUpdate() {
+        weak var weakSelf = self
         searchFeedModel?.search = nil
         let stringKey = "New ItemsX"
         searchFeedModel?.letSearch(keyword: stringKey, completion: { (search) in
-            XCTAssertNotNil(self.searchFeedModel?.search,"It mustNot Nil")
-            let needUpdate = self.searchFeedModel?.isNeedUpdateServer(dictionary: nil, page: 0)
-            XCTAssertTrue(needUpdate == true, "It is Must be true")
+            XCTAssertTrue(weakSelf?.searchFeedModel?.numberOfSections() == 1 , "section always 1")
+            XCTAssertNotNil(weakSelf?.searchFeedModel?.search,"It mustNot Nil")
+            let needUpdate = weakSelf?.searchFeedModel?.isNeedUpdateServer(dictionary: nil, page: 0)
+            XCTAssertTrue(needUpdate == false, "It is Must be true")
             var aDictionary = [String:AnyObject]()
             
             aDictionary ["web_url"] = "https://www.nytimes.com/aponline/2017/05/08/us/ap-us-mtv-movie-and-tv-awards.html" as AnyObject
@@ -76,24 +146,70 @@ class SearchTest: XCTestCase {
             aDictionary["pub_date"] = "2017-05-08T04:24:44+0000" as AnyObject
             
             aDictionary["_id"] = "590ff3167c459f24986de3d5" as AnyObject
-            let aNewsModel = NewsModel.init(fetcher: self.fetcher!, dictionary: aDictionary, search: search)
+            let aNewsModel = NewsModel.init(fetcher: (weakSelf?.fetcher!)!, dictionary: aDictionary, search: search)
             aNewsModel.save()
-            XCTAssertTrue((self.searchFeedModel?.search?.listNews?.count)! >= 1, "Min 1")
+            XCTAssertTrue((weakSelf?.searchFeedModel?.search?.listNews?.count)! >= 1, "Min 1")
             
-            let aSearch = self.searchFeedModel?.search?.listNews?.allObjects.first as! NewsFeed
+            let aSearch = weakSelf?.searchFeedModel?.search?.listNews?.allObjects.first as! NewsFeed
             debugPrint(aSearch.title!)
-            XCTAssertTrue(self.searchFeedModel?.search?.keyword ==  stringKey, "must Equal")
-            self.searchFeedModel?.letSearch(keyword: "New X", completion: { (search) in
-                XCTAssertNotNil(self.searchFeedModel?.search,"It mustNot Nil")
-                self.searchFeedModel?.letSearch(keyword: stringKey, completion: { (search) in
-                    XCTAssertNotNil(self.searchFeedModel?.search,"It mustNot Nil")
-                    self.searchFeedModel?.letSearch(keyword: stringKey, completion: { (search) in
-                        XCTAssertNotNil(self.searchFeedModel?.search,"It mustNot Nil")
+            XCTAssertTrue(weakSelf?.searchFeedModel?.search?.keyword ==  stringKey, "must Equal")
+            weakSelf?.searchFeedModel?.letSearch(keyword: "New X", completion: { (search) in
+                XCTAssertTrue(weakSelf?.searchFeedModel?.numberOfSections() == 1 , "section always 1")
+                XCTAssertNotNil(weakSelf?.searchFeedModel?.search,"It mustNot Nil")
+                let aNewsModel = NewsModel.init(fetcher: (weakSelf?.fetcher!)!, dictionary: aDictionary, search: search)
+                
+                aNewsModel.save()
+                weakSelf?.searchFeedModel?.isNeedUpdateServer(dictionary: aDictionary, page: 0)
+                //                XCTAssertTrue(needUpdate == true, "It is Must be true")
+                weakSelf?.searchFeedModel?.letSearch(keyword: stringKey, completion: { (search) in
+                    XCTAssertNotNil(weakSelf?.searchFeedModel?.search,"It mustNot Nil")
+                    weakSelf?.searchFeedModel?.isNeedUpdateServer(dictionary: aDictionary, page: 0)
+                    weakSelf?.searchFeedModel?.letSearch(keyword: stringKey, completion: { (search) in
+                        XCTAssertNotNil(weakSelf?.searchFeedModel?.search,"It mustNot Nil")
                     })
                 })
             })
             
         })
+        
+    }
+    func testNewsFeed(){
+        weak var weakSelf = self
+            
+        self.searchFeedModel?.cancelOperation()
+        self.searchFeedModel?.letSearch(keyword: "Dolphin", completion: { (search) in
+            
+            XCTAssertTrue(weakSelf?.searchFeedModel?.isNews == false, "It is News")
+            let indexPath = IndexPath(row:0, section:1)
+            let AnyItem = weakSelf?.searchFeedModel?.itemForRow(at: indexPath)
+            XCTAssertTrue(AnyItem is Search,"Item type must Search")
+            XCTAssertTrue((AnyItem as! Search).keyword ==  "Dolphin" && weakSelf?.searchFeedModel?.itemsSearch.first?.keyword == "Dolphin", "FirstItem Equal Last Search")
+            XCTAssertTrue((weakSelf?.searchFeedModel?.numberOfRows(inSection: 0))! >= 1, "Minumum 1")
+            XCTAssertTrue(weakSelf?.searchFeedModel?.search?.keyword == "Dolphin", "Dolphin the newest")
+            weakSelf?.measure {
+            weakSelf?.searchFeedModel?.checkServer(page: 0, search: (weakSelf?.searchFeedModel?.search)!, beginUpdateView: {
+                
+            }, failed: {
+
+            }, completion: { (page) in
+                XCTAssertTrue(weakSelf?.searchFeedModel?.isNews == true, "It is News")
+                
+               
+                    let AnyItem = weakSelf?.searchFeedModel?.itemForRow(at: indexPath)
+                    XCTAssertTrue(AnyItem is NewsFeed,"Item type must News")
+                    
+                
+
+              
+                
+                
+                
+            })
+            
+            }
+          
+        })
+       
         
     }
     
@@ -104,7 +220,7 @@ class SearchTest: XCTestCase {
     func searchFunc(){
         var firstSearch:String?
         var lastSearch:String?
-        
+        weak var weakSelf = self
         for i in 0...11{
             let stringKey:String = "New \(i)"
             if i == 2{
@@ -114,29 +230,74 @@ class SearchTest: XCTestCase {
                 lastSearch =  stringKey
             }
             self.searchFeedModel?.letSearch(keyword: stringKey, completion: { (search) in
-                XCTAssertNotNil(self.searchFeedModel?.search,"It mustNot Nil")
+                XCTAssertNotNil(weakSelf?.searchFeedModel?.search,"It mustNot Nil")
                 if(i == 11){
-                    XCTAssertTrue(self.searchFeedModel?.itemsSearch.first?.keyword == lastSearch)
+                    XCTAssertTrue(weakSelf?.searchFeedModel?.itemsSearch.first?.keyword == lastSearch)
                     
-                    XCTAssertTrue(self.searchFeedModel?.itemsSearch.last?.keyword == firstSearch)
+                    XCTAssertTrue(weakSelf?.searchFeedModel?.itemsSearch.last?.keyword == firstSearch)
                 }
             })
-
+            
         }
     }
     
-    func testListNewsFound(){
-        searchFeedModel?.search = nil
-        searchFeedModel?.letSearch(keyword: "New ItemsX", completion: { (search) in
-            XCTAssertNotNil(self.searchFeedModel?.search,"It mustNot Nil")
-            let needUpdate = self.searchFeedModel?.isNeedUpdateServer(dictionary: nil, page: 0)
-            XCTAssertTrue(needUpdate == true, "It is Must be true")
+    func testSearchSyncServer(){
+        let aSearch1 =  searchFeedModel?.createNewSearch(keyword: "Singapore")
+        let aSearch2 =  searchFeedModel?.createNewSearch(keyword: "Indonesia")
+        searchFeedModel?.checkServer(page: 0, search: aSearch1!, beginUpdateView: {
+            
+        }, failed: {
+            
+        }, completion: { (page) in
+            
+        })
+        searchFeedModel?.checkServer(page: 1, search: aSearch1!, beginUpdateView: {
+            
+        }, failed: {
+            
+        }, completion: { (page) in
+            
         })
         
-
+        searchFeedModel?.checkServer(page: 0, search: aSearch2!, beginUpdateView: {
+            
+        }, failed: {
+            
+        }, completion: { (page) in
+            
+        })
+        
+    }
+    func complete(page:Int16){
+        debugPrint("Complete")
+    }
+    
+    func testSearchServer(){
+        weak var weakSelf = self
+        searchFeedModel?.letSearch(keyword: "SingaporeX", completion: { (search) in
+            weakSelf?.searchFeedModel?.checkServer(page: 0, search: search, beginUpdateView: {
+                
+            }, failed: {
+                
+            }, completion:(weakSelf?.complete)!)
+        })
+        
+    }
+    
+    
+    func testListNewsFound(){
+        weak var weakSelf = self
+        searchFeedModel?.search = nil
+        searchFeedModel?.letSearch(keyword: "New ItemsX", completion: { (search) in
+            XCTAssertNotNil(weakSelf?.searchFeedModel?.search,"It mustNot Nil")
+           
+            
+        })
+        
+        
     }
     func testCreateNews() {
-         let search = searchFeedModel?.createNewSearch(keyword: "Singapore")
+        let search = searchFeedModel?.createNewSearch(keyword: "Singapore")
         var aDictionary = [String:AnyObject]()
         
         aDictionary ["web_url"] = "https://www.nytimes.com/aponline/2017/05/08/us/ap-us-mtv-movie-and-tv-awards.html" as AnyObject
@@ -182,10 +343,10 @@ class SearchTest: XCTestCase {
     }
     
     func testRemoveGetListSearch() {
-       
+        
     }
     func testErrorDictionary(){
-         let search = searchFeedModel?.createNewSearch(keyword: "Singapore")
+        let search = searchFeedModel?.createNewSearch(keyword: "Singapore")
         var aDictionary = [String:AnyObject]()
         
         aDictionary["web_url"] = nil
@@ -209,7 +370,7 @@ class SearchTest: XCTestCase {
     }
     
     func testErrorDictionary2(){
-         let search = searchFeedModel?.createNewSearch(keyword: "Singapore")
+        let search = searchFeedModel?.createNewSearch(keyword: "Singapore")
         var aDictionary = [String:AnyObject]()
         
         aDictionary ["web_url"] = nil
@@ -245,24 +406,7 @@ class SearchTest: XCTestCase {
         }
     }
     
-    func testCheckServer(){
-//        self.searchFeedModel?.search =  nil
-//        XCTAssertTrue(self.searchFeedModel?.list().count == 0,"its muset zero")
-//        self.searchFeedModel!.letSearch(keyword: "Key wan", completion: { (search) in
-//            
-//            
-//            self.searchFeedModel?.checkServer(page: 0, search: search, beginUpdateView: {
-//                
-//            }, failed: {
-//                
-//            }, completion: { (page) in
-//                XCTAssertTrue(self.searchFeedModel?.list().count != 0,"its not empty")
-//                XCTAssertNotNil(self.searchFeedModel?.list(),"Not Nil")
-//                XCTAssertEqual(self.searchFeedModel?.list().count, self.searchFeedModel?.numberOfRows(inSection: 0)," Its must be Equal")
-//            })
-//        })
-        
-        
+    func checkServer(){
         
         self.searchFeedModel!.letSearch(keyword: "Key wan2", completion: { (search) in
             self.searchFeedModel?.checkServer(page: 0, search: search, beginUpdateView: {
@@ -279,7 +423,7 @@ class SearchTest: XCTestCase {
         self.measure {
             // Put the code you want to measure the time of here.
             
-            self.testCheckServer()
+            self.checkServer()
             
         }
     }

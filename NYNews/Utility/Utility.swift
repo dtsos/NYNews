@@ -85,4 +85,20 @@ extension NSDate {
 }
 
 
+typealias DataTaskResult = (Data?, URLResponse?, Error?) -> Void
+
+class URLDataTask {
+    let session: URLSession
+    let url: URL
+    
+    init(session: URLSession, url: URL) {
+        self.session = session
+        self.url = url
+    }
+    
+    func dataTask(completionHandler: @escaping DataTaskResult) -> URLSessionDataTask {
+        
+        return session.dataTask(with: url, completionHandler: completionHandler)
+    }
+}
 

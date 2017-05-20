@@ -109,6 +109,7 @@ class ListNewsViewController: UIViewController,UICollectionViewDelegate,UICollec
     func didPullToRefresh() {
         if self.searchController.isActive {
             if (searchFeed?.isNews)! && searchFeed?.search != nil {
+                self.searchFeed?.cancelOperation()
                 self.searchFeed?.checkServer(page: 0, search: (searchFeed?.search)!, beginUpdateView: update, failed: failed, completion: completion)
             }else{
                 refreshControl.endRefreshing()
@@ -284,7 +285,9 @@ class ListNewsViewController: UIViewController,UICollectionViewDelegate,UICollec
     
     @IBAction func actionSearch(_ sender: UIBarButtonItem) {
         newsModel?.cancelOperation()
-        
+        if refreshControl.isRefreshing {
+            refreshControl.endRefreshing()
+        }
         searchController.searchResultsUpdater = self
         searchController.searchBar.delegate = self
         self.collectionView.reloadData()
@@ -306,6 +309,7 @@ class ListNewsViewController: UIViewController,UICollectionViewDelegate,UICollec
         searchFeed?.letSearch(keyword: keyword, completion: { search in
             if self.activeSearch != search {
                 self.activeSearch = search
+                self.searchFeed?.cancelOperation()
                 self.searchFeed?.checkServer(page: 0, search: search, beginUpdateView: self.update, failed: self.failed, completion: self.completion)
             }else{
                 
