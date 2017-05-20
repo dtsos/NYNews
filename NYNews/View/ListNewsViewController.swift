@@ -128,7 +128,7 @@ class ListNewsViewController: UIViewController,UICollectionViewDelegate,UICollec
         self.page = page
         if self.refreshControl.isRefreshing == true {
             DispatchQueue.main.async(execute: { () -> Void in
-            self.refreshControl.endRefreshing()
+                self.refreshControl.endRefreshing()
             })
         }
         
@@ -180,7 +180,7 @@ class ListNewsViewController: UIViewController,UICollectionViewDelegate,UICollec
             searchController.isActive = false
             let detailNewsVC = self.storyboard?.instantiateViewController(withIdentifier: "DetailNewsVC") as! DetailNewsViewController
             detailNewsVC.indexStart = indexPath
-              searchFeed?.isNews == true ?(detailNewsVC.searchModel = searchFeed):(detailNewsVC.newsModel = newsModel)
+            searchFeed?.isNews == true ?(detailNewsVC.searchModel = searchFeed):(detailNewsVC.newsModel = newsModel)
             self.navigationController?.pushViewController(detailNewsVC, animated: true)
             
         }else{
@@ -304,24 +304,24 @@ class ListNewsViewController: UIViewController,UICollectionViewDelegate,UICollec
             return
         }
         searchFeed?.letSearch(keyword: keyword, completion: { search in
-            if self.searchFeed?.search != search {
-                
-                
-                self.searchFeed?.search = search
-                self.searchFeed?.createListNews()
+            if self.activeSearch != search {
+                self.activeSearch = search
                 self.searchFeed?.checkServer(page: 0, search: search, beginUpdateView: self.update, failed: self.failed, completion: self.completion)
             }else{
-        
+                
                 self.collectionView.reloadData()
             }
         })
         
     }
+    
+    var activeSearch:Search?
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar){
         
         self.search(keyword: searchController.searchBar.text!)
     }
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar){
+        activeSearch = nil
         self.searchFeed?.search = nil
         self.searchFeed?.isNews = false
         self.searchFeed?.cancelOperation()

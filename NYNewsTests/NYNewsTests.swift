@@ -83,7 +83,7 @@ class NYNewsTests: XCTestCase {
         XCTAssertNotNil(!(stringDate?.isEmpty)!, "Is Not Empty")
     }
     
-   
+    
     
     //    func testFailed(){
     //        let QueryString =  "http://xxx.xxx.xxx/"
@@ -106,8 +106,8 @@ class NYNewsTests: XCTestCase {
             }
         }
     }
-   
-   
+    
+    
     
     func testCheckServer(){
         debugPrint(fetcher)
@@ -220,8 +220,8 @@ class NYNewsTests: XCTestCase {
         
         listNewsVC?.newsModel = newsFeedsModel
         newsFeedsModel?.readyVC()
-        let indexPath:IndexPath =  IndexPath(row: 0, section: 0)
-        XCTAssertTrue(listNewsVC?.newsModel?.itemForRow(at: indexPath) != nil)
+//        let indexPath:IndexPath =  IndexPath(row: 0, section: 0)
+//        XCTAssertTrue(listNewsVC?.newsModel?.itemForRow(at: indexPath) != nil)
     }
     //
     //
@@ -254,7 +254,7 @@ class NYNewsTests: XCTestCase {
             
             aDictionary["_id"] = "590ff3167c459f24986de3d\(i)" as AnyObject
             if page == 4 {
-            aDictionary["_id"] = "idSame" as AnyObject
+                aDictionary["_id"] = "idSame" as AnyObject
             }
             let aNewsModel = NewsModel.init(fetcher: self.fetcher, dictionary: aDictionary)
             aNewsModel.news?.page = page
@@ -280,13 +280,13 @@ class NYNewsTests: XCTestCase {
         aDictionary["pub_date"] = "2017-05-08T04:24:44+0007" as AnyObject
         
         aDictionary["_id"] = "590ff3167c459f24986de3dx" as AnyObject
-
+        
         checkUpdateItems = newsFeedsModel?.isNeedUpdateServer(dictionary: aDictionary, page: 1)
         newsFeedsModel?.page = 1
-//        var arrayNews =newsFeedsModel?.listNews(page: 0)
-//        for news in arrayNews {
-//            self.managedObjectContext?.delete(news)
-//        }
+        //        var arrayNews =newsFeedsModel?.listNews(page: 0)
+        //        for news in arrayNews {
+        //            self.managedObjectContext?.delete(news)
+        //        }
         createdDummyArrayFeed(page: 2,max: 10)
         checkUpdateItems = newsFeedsModel?.isNeedUpdateServer(dictionary: aDictionary, page: 2)
         createdDummyArrayFeed(page: 3,max: 5)
@@ -299,9 +299,9 @@ class NYNewsTests: XCTestCase {
         checkUpdateItems = newsFeedsModel?.isNeedUpdateServer(dictionary: aDictionary, page: 4)
         checkUpdateItems = newsFeedsModel?.isNeedUpdateServer(dictionary: aDictionary, page: 4)
         
-
         
-//        XCTAssertFalse((checkUpdateItems?.update)! ,"It mush be false")
+        
+        //        XCTAssertFalse((checkUpdateItems?.update)! ,"It mush be false")
         
     }
     
@@ -313,29 +313,47 @@ class NYNewsTests: XCTestCase {
         }, completion: { (page) in
             if page < 5 {
                 self.callServer(page: page + 1)
+                
             }
         })
-
+        
     }
     
     func testServer(){
+        self.callServer(page: -1)
+        self.callServer(page: 0)
         
-            self.callServer(page: 1)
+        newsFeedsModel?.checkServer(page: 0, beginUpdateView: {
             
+        }, failed: {
+            
+        }, completion: { (page) in
+           
+        })
+        newsFeedsModel?.checkServer(page: 1, beginUpdateView: {
+            
+        }, failed: {
+            
+        }, completion: { (page) in
+            
+        })
+        self.callServer(page: 1)
         
         
         
-       
+        
+        
+        
         
         
     }
     
-//    func testPerformanceExample() {
-//        // This is an example of a performance test case.
-//        self.measure {
-//            // Put the code you want to measure the time of here.
-//            self.testCheckListAfterComplete()
-//        }
-//    }
+    //    func testPerformanceExample() {
+    //        // This is an example of a performance test case.
+    //        self.measure {
+    //            // Put the code you want to measure the time of here.
+    //            self.testCheckListAfterComplete()
+    //        }
+    //    }
     //
 }

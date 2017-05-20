@@ -242,10 +242,10 @@ class NewsFeedModel : NSObject {
         if tempitems?.count == 0 {
             return (true, tempitems)
         }else{
-//            let index = Int(10 * page)
-//            if index >= (tempitems?.count)!{
-//                return (true, tempitems)
-//            }
+            //            let index = Int(10 * page)
+            //            if index >= (tempitems?.count)!{
+            //                return (true, tempitems)
+            //            }
             
             
             
@@ -282,6 +282,7 @@ class NewsFeedModel : NSObject {
         stillDownload = true
         lastStringQuery =  "\(Constant.URLArticleSearch)\(Constant.paramAPIKeyValue)&page=\(page)&sort=newest"
         fetcher.fetch(withQueryString: lastStringQuery!, failure: { (error) in
+            debugPrint(error)
             self.stillDownload =  false
             failed()
         }) { (dictionary) in
@@ -305,7 +306,7 @@ class NewsFeedModel : NSObject {
                 beginUpdateView()
                 let items = checkUpdate.items
                 let indexStart = 0
-                //                debugPrint(items)
+                debugPrint(items!)
                 if items != nil {
                     if  (indexStart < (items?.count)!) {
                         self.context?.performAndWait {
@@ -317,12 +318,10 @@ class NewsFeedModel : NSObject {
                                     
                                     self.context?.delete(aNewsFeed!)
                                     
-                                    do {
-                                        //                                        self.context?.refreshAllObjects()
-                                        try self.context?.save()
-                                    }catch{
-                                        debugPrint(error)
-                                    }
+                                    
+                                    //                                        self.context?.refreshAllObjects()
+                                    (try! self.context?.save())
+                                    
                                 }
                             }
                         }

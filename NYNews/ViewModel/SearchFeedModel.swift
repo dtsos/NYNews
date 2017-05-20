@@ -1,3 +1,4 @@
+
 //
 //  SearchFeed.swift
 //  NYNews
@@ -31,7 +32,7 @@ class SearchModel{
         result = (try! self.context?.fetch(fetchRequest))
         
         
-        self.listSearch = result ?? nil
+        self.listSearch = result
         
     }
     var listSearch:[Search]?
@@ -96,6 +97,7 @@ class SearchNewsFeedModel:NSObject {
         
     }
     func createListNews(){
+        self.itemsNewsFeed.removeAll()
         let arrayAllNews: [NewsFeed] = self.search!.listNews?.allObjects as! [NewsFeed]
         let arrayNews = arrayAllNews.filter{ ($0 as NewsFeed).page == 0 }
         self.itemsNewsFeed.append(contentsOf: arrayNews )
@@ -132,7 +134,7 @@ class SearchNewsFeedModel:NSObject {
             
             
             let itemDictionaries: [[String:AnyObject]] = data
-          
+            
             let dictListnews:[String:AnyObject]? =  (itemDictionaries.count >= 1 ?  itemDictionaries.first : nil )
             
             if self.isNeedUpdateServer(dictionary:dictListnews, page: page) || itemDictionaries.count == 0{
@@ -208,11 +210,9 @@ class SearchNewsFeedModel:NSObject {
         let search:Search = Search(context:self.context!)
         search.keyword = keyword
         search.date =  NSDate()
-        do {
-            try self.context?.save()
-        } catch  {
-            return nil
-        }
+        
+        (try! self.context?.save())
+        
         return search
     }
     
@@ -232,7 +232,7 @@ class SearchNewsFeedModel:NSObject {
         if self.search?.keyword ==  keyword {
             self.isNews =  true
             completion(self.search!)
-        
+            
             return
         }
         var items = self.itemsSearch
@@ -241,7 +241,8 @@ class SearchNewsFeedModel:NSObject {
             itemsSearch.append(aSearch)
             
             delegate?.updateView()
-            
+            self.search =  aSearch
+            createListNews()
             completion(aSearch)
             return
             
@@ -251,11 +252,11 @@ class SearchNewsFeedModel:NSObject {
             
             aSearch =  (items[i])
             aSearch.date = NSDate()
-            do {
-                try self.context?.save()
-            } catch  {
-                
-            }
+            
+            ( try! self.context?.save())
+            
+            
+            
             if  i != 0 {
                 rearrange(array: &items, fromIndex: i, toIndex: 0)
             }
@@ -274,13 +275,13 @@ class SearchNewsFeedModel:NSObject {
             let lastSearch = items.last
             self.context?.delete(lastSearch!)
             items.removeLast()
-            do {
-                try self.context?.save()
-            } catch  {
-                
-            }
+            
+            (try! self.context?.save())
             
         }
+        self.search =  aSearch
+        createListNews()
+        
         self.itemsSearch = items
         delegate?.updateView()
         completion(aSearch)
