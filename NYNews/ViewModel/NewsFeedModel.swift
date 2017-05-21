@@ -230,13 +230,13 @@ class NewsFeedModel : NSObject {
             return (false, tempitems)
         }
         
-        if self.page != page {
+//        if self.page != page {
             tempitems = listNews(page: page)!
             
             
-        }else{
-            
-        }
+//        }else{
+//            
+//        }
         
         
         if tempitems?.count == 0 {
@@ -280,12 +280,20 @@ class NewsFeedModel : NSObject {
             return
         }
         stillDownload = true
+        
+        
         lastStringQuery =  "\(Constant.URLArticleSearch)\(Constant.paramAPIKeyValue)&page=\(page)&sort=newest"
+        
+       
+        
         fetcher.fetch(withQueryString: lastStringQuery!, failure: { (error) in
-            debugPrint(error)
+            
             self.stillDownload =  false
             failed()
         }) { (dictionary) in
+            
+            
+            
             guard let response: [String:AnyObject] =  dictionary["response"] as? [String:AnyObject] else{
                 failed()
                 self.stillDownload = false

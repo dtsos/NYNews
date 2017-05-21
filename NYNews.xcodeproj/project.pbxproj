@@ -23,6 +23,7 @@
 		F279B1D51EBD152700FF0E9C /* Utility.swift in Sources */ = {isa = PBXBuildFile; fileRef = F279B1D41EBD152700FF0E9C /* Utility.swift */; };
 		F279B1D71EBD2C3900FF0E9C /* SearchFeedModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F279B1D61EBD2C3900FF0E9C /* SearchFeedModel.swift */; };
 		F279B1D91EBD987E00FF0E9C /* ListNewsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F279B1D81EBD987E00FF0E9C /* ListNewsViewController.swift */; };
+		F28E9CFC1ED12C6700317DA3 /* MockingTestNetwork.swift in Sources */ = {isa = PBXBuildFile; fileRef = F28E9CFB1ED12C6700317DA3 /* MockingTestNetwork.swift */; };
 		F2D804011EC014200002B8E7 /* SearchTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2D804001EC014200002B8E7 /* SearchTest.swift */; };
 /* End PBXBuildFile section */
 
@@ -66,6 +67,7 @@
 		F279B1D41EBD152700FF0E9C /* Utility.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utility.swift; sourceTree = "<group>"; };
 		F279B1D61EBD2C3900FF0E9C /* SearchFeedModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchFeedModel.swift; sourceTree = "<group>"; };
 		F279B1D81EBD987E00FF0E9C /* ListNewsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ListNewsViewController.swift; sourceTree = "<group>"; };
+		F28E9CFB1ED12C6700317DA3 /* MockingTestNetwork.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MockingTestNetwork.swift; sourceTree = "<group>"; };
 		F2D804001EC014200002B8E7 /* SearchTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchTest.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -132,6 +134,7 @@
 			isa = PBXGroup;
 			children = (
 				F2731F011EBCEC390041F79C /* NYNewsTests.swift */,
+				F28E9CFB1ED12C6700317DA3 /* MockingTestNetwork.swift */,
 				F22A2F261ECECECC009F0442 /* TestNetworking.swift */,
 				F2731F031EBCEC390041F79C /* Info.plist */,
 				F2D804001EC014200002B8E7 /* SearchTest.swift */,
@@ -342,6 +345,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F2731F021EBCEC390041F79C /* NYNewsTests.swift in Sources */,
+				F28E9CFC1ED12C6700317DA3 /* MockingTestNetwork.swift in Sources */,
 				F22A2F271ECECECC009F0442 /* TestNetworking.swift in Sources */,
 				F2D804011EC014200002B8E7 /* SearchTest.swift in Sources */,
 			);

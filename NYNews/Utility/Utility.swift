@@ -11,11 +11,13 @@ import UIKit
 
 extension URLResponse {
     func isHTTPResponseValid() -> Bool {
-        guard let response = self as? HTTPURLResponse else {
-            return false
-        }
+        if let response = self as? HTTPURLResponse  {
+            
+        
         
         return (response.statusCode >= 200 && response.statusCode <= 299)
+        }
+        return false
     }
     
 }
@@ -28,7 +30,7 @@ extension URLSession {
                     
                     if dataStack.originalRequest?.url?.absoluteString == stringUrl {
                         dataStack.cancel()
-                        return
+                        break
                     }
                     
                 }
@@ -82,23 +84,5 @@ extension NSDate {
     }
     
     
-}
-
-
-typealias DataTaskResult = (Data?, URLResponse?, Error?) -> Void
-
-class URLDataTask {
-    let session: URLSession
-    let url: URL
-    
-    init(session: URLSession, url: URL) {
-        self.session = session
-        self.url = url
-    }
-    
-    func dataTask(completionHandler: @escaping DataTaskResult) -> URLSessionDataTask {
-        
-        return session.dataTask(with: url, completionHandler: completionHandler)
-    }
 }
 

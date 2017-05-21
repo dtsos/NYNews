@@ -121,10 +121,12 @@ class SearchNewsFeedModel:NSObject {
         lastStringQuery =  "\(Constant.URLArticleSearch)\(Constant.paramAPIKeyValue)&page=\(page)&q=\(search.keyword!)&sort=newest"
         fetcher.fetch(withQueryString: lastStringQuery!, failure: { (error) in
             weakSelf?.stillDownload =  false
-            debugPrint(error)
+           
             failed()
             
         }) { (dictionary) in
+            
+            
             guard let response: [String:AnyObject] =  dictionary["response"] as? [String:AnyObject] else{
                 weakSelf?.stillDownload = false
                 failed()

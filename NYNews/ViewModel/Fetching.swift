@@ -10,26 +10,35 @@ import Foundation
 import UIKit
 protocol FetchingProtocol {
     func fetch(withQueryString queryString: String,failure: @escaping (Error?) -> Void, completion: @escaping (NSDictionary) -> Void)
-     
-}
-class Fetching: FetchingProtocol {
-    //fetching
     
-    func fetch(withQueryString queryString: String,failure: @escaping (Error?) -> Void, completion: @escaping (NSDictionary) -> Void) {
+}
+
+class Fetching :FetchingProtocol{
+    //fetching
+   
+    private let engine: NetworkEngine
+    
+    init(engine: NetworkEngine = URLSession.shared) {
+        self.engine = engine
+    }
+
+    func fetch(withQueryString queryString: String,failure: @escaping (Error?) -> Void, completion: @escaping (NSDictionary) ->Void) {
         debugPrint(queryString)
         let encoded = queryString.addingPercentEncoding(withAllowedCharacters: CharacterSet.urlQueryAllowed)!
         let url = URL(string: encoded)!
         
         
-        let task = URLDataTask.init(session: URLSession.shared, url: url)
-        task.dataTask { (data, response, error) in
+       
+        
+        engine.performRequest(for: url) { (data, response, xerror) in
+            
             debugPrint(url)
             guard response?.isHTTPResponseValid() == true else {
-                failure(error)
+                failure(xerror)
                 return
             }
             guard data != nil else{
-                failure(error)
+                failure(xerror)
                 return
             }
             do {
@@ -39,20 +48,29 @@ class Fetching: FetchingProtocol {
                 debugPrint("docatch")
                 completion(object!)
                 
-            } catch {
+            } catch  {
                 failure(error)
                 debugPrint(error)
             }
-        }.resume()
-        
-//        URLSession.shared.dataTask(with: request, completionHandler: { (data: Data?, response: URLResponse?, error: Error?) in
-//            debugPrint(request)
-//            
-//            
-//           
-//            
-//        }).resume()
+        }
+
     }
     
     
+}
+
+
+protocol NetworkEngine {
+    typealias Handler = (Data?, URLResponse?, Error?) -> Void
+    
+    func performRequest(for url: URL, completionHandler: @escaping Handler)
+}
+
+extension URLSession: NetworkEngine {
+    typealias Handler = NetworkEngine.Handler
+    
+    func performRequest(for url: URL, completionHandler: @escaping Handler) {
+        let task = dataTask(with: url, completionHandler: completionHandler)
+        task.resume()
+    }
 }

@@ -38,7 +38,7 @@ class NYNewsTests: XCTestCase {
         super.tearDown()
     }
     func releaseAll(){
-        newsFeedsModel?.cancelOperation()
+//        newsFeedsModel?.cancelOperation()
         appDelegate = nil
         newsFeedsModel = nil
         managedObjectContext = nil
@@ -90,18 +90,6 @@ class NYNewsTests: XCTestCase {
     //
    
     
-    
-    func testCheckServer(){
-        
-        newsFeedsModel?.checkServer(page: 0, beginUpdateView: {
-            debugPrint("update")
-        }, failed: {
-            debugPrint("failed")
-        }, completion: { (page) in
-            debugPrint(page)
-            
-        })
-    }
     
     func testCreateNews() {
         var aDictionary = [String:AnyObject]()
@@ -198,21 +186,7 @@ class NYNewsTests: XCTestCase {
     
     //
     //
-    func testCheckListAfterComplete() {
-        let aPage = 0
-        self.newsFeedsModel?.checkServer(page: Int16(aPage), beginUpdateView: {
-            debugPrint("update")
-        }, failed: {
-            debugPrint("failed")
-            
-        }, completion: { (page) in
-            
-            XCTAssertEqual(aPage,Int(page),"it must be equal")
-            
-        })
-        
-        
-    }
+   
     func createdDummyArrayFeed(page:Int16,max:Int){
         var arrayFeedPage:[NewsFeed] =  [NewsFeed]()
         for i  in 0...(max - 1) {

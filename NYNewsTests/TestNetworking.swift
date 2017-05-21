@@ -62,46 +62,46 @@ class TestNetworking: XCTestCase {
     //        fetch(query: QueryString)
     //    }
     
-    func testNewsFeed(){
-        
-        weak var weakSelf =  self
-        self.searchFeedModel?.cancelOperation()
-        self.searchFeedModel?.letSearch(keyword: "Dolphin", completion: { (search) in
-            
-            XCTAssertTrue(weakSelf?.searchFeedModel?.isNews == false, "It is News")
-            let indexPath = IndexPath(row:0, section:1)
-            let AnyItem = weakSelf?.searchFeedModel?.itemForRow(at: indexPath)
-            XCTAssertTrue(AnyItem is Search,"Item type must Search")
-            XCTAssertTrue((AnyItem as! Search).keyword ==  "Dolphin" && weakSelf?.searchFeedModel?.itemsSearch.first?.keyword == "Dolphin", "FirstItem Equal Last Search")
-            XCTAssertTrue((weakSelf?.searchFeedModel?.numberOfRows(inSection: 0))! >= 1, "Minumum 1")
-            XCTAssertTrue(weakSelf?.searchFeedModel?.search?.keyword == "Dolphin", "Dolphin the newest")
-            weakSelf?.measure {
-                weakSelf?.searchFeedModel?.cancelOperation()
-                weakSelf?.searchFeedModel?.checkServer(page: 0, search: (weakSelf?.searchFeedModel?.search)!, beginUpdateView: {
-                    
-                }, failed: {
-                    
-                }, completion: { (page) in
-                    XCTAssertTrue(weakSelf?.searchFeedModel?.isNews == true, "It is News")
-                    weakSelf?.searchFeedModel?.itemForRow(at: indexPath)
-                    XCTAssertTrue((weakSelf?.searchFeedModel?.numberOfRows(inSection: 0))! >= 1, "Minumum 1")
-                    let indexPath = IndexPath(row:0, section:1)
-                  
-                        let AnyItem = weakSelf?.searchFeedModel?.itemForRow(at: indexPath)
-                        XCTAssertTrue(AnyItem is NewsFeed,"Item type must News")
-                        
-                    
-
-                    
-                    
-                })
-                
-            }
-            
-        })
-        
-        
-    }
+//    func testNewsFeed(){
+//        
+//        weak var weakSelf =  self
+//        self.searchFeedModel?.cancelOperation()
+//        self.searchFeedModel?.letSearch(keyword: "Dolphin", completion: { (search) in
+//            
+//            XCTAssertTrue(weakSelf?.searchFeedModel?.isNews == false, "It is News")
+//            let indexPath = IndexPath(row:0, section:1)
+//            let AnyItem = weakSelf?.searchFeedModel?.itemForRow(at: indexPath)
+//            XCTAssertTrue(AnyItem is Search,"Item type must Search")
+//            XCTAssertTrue((AnyItem as! Search).keyword ==  "Dolphin" && weakSelf?.searchFeedModel?.itemsSearch.first?.keyword == "Dolphin", "FirstItem Equal Last Search")
+//            XCTAssertTrue((weakSelf?.searchFeedModel?.numberOfRows(inSection: 0))! >= 1, "Minumum 1")
+//            XCTAssertTrue(weakSelf?.searchFeedModel?.search?.keyword == "Dolphin", "Dolphin the newest")
+//            weakSelf?.measure {
+//                weakSelf?.searchFeedModel?.cancelOperation()
+//                weakSelf?.searchFeedModel?.checkServer(page: 0, search: (weakSelf?.searchFeedModel?.search)!, beginUpdateView: {
+//                    
+//                }, failed: {
+//                    
+//                }, completion: { (page) in
+//                    XCTAssertTrue(weakSelf?.searchFeedModel?.isNews == true, "It is News")
+//                    weakSelf?.searchFeedModel?.itemForRow(at: indexPath)
+//                    XCTAssertTrue((weakSelf?.searchFeedModel?.numberOfRows(inSection: 0))! >= 1, "Minumum 1")
+//                    let indexPath = IndexPath(row:0, section:1)
+//                  
+//                        let AnyItem = weakSelf?.searchFeedModel?.itemForRow(at: indexPath)
+//                        XCTAssertTrue(AnyItem is NewsFeed,"Item type must News")
+//                        
+//                    
+//
+//                    
+//                    
+//                })
+//                
+//            }
+//            
+//        })
+//        
+//        
+//    }
     func testArrayNews(){
         let aNewsFeed =  NewsFeed(context:self.managedObjectContext!)
         aNewsFeed.title = "Title"
