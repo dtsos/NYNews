@@ -11,13 +11,9 @@ import UIKit
 
 extension URLResponse {
     func isHTTPResponseValid() -> Bool {
-        if let response = self as? HTTPURLResponse  {
-            
-        
-        
-        return (response.statusCode >= 200 && response.statusCode <= 299)
-        }
-        return false
+        let httpResponse = self as? HTTPURLResponse
+        return ((httpResponse?.statusCode)! >= 200 && (httpResponse?.statusCode)! <= 299)
+
     }
     
 }

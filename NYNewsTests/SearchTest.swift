@@ -42,7 +42,7 @@ class SearchTest: XCTestCase {
     
     override func tearDown() {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
-//        self.searchFeedModel?.cancelOperation()
+        self.searchFeedModel?.cancelOperation()
         releaseAll()
         super.tearDown()
     }
@@ -149,21 +149,16 @@ class SearchTest: XCTestCase {
             let aNewsModel = NewsModel.init(fetcher: (weakSelf?.fetcher!)!, dictionary: aDictionary, search: search)
             aNewsModel.save()
             XCTAssertTrue((weakSelf?.searchFeedModel?.search?.listNews?.count)! >= 1, "Min 1")
-            
-            let aSearch = weakSelf?.searchFeedModel?.search?.listNews?.allObjects.first as! NewsFeed
-            debugPrint(aSearch.title!)
-            XCTAssertTrue(weakSelf?.searchFeedModel?.search?.keyword ==  stringKey, "must Equal")
+               XCTAssertTrue(weakSelf?.searchFeedModel?.search?.keyword ==  stringKey, "must Equal")
             weakSelf?.searchFeedModel?.letSearch(keyword: "New X", completion: { (search) in
                 XCTAssertTrue(weakSelf?.searchFeedModel?.numberOfSections() == 1 , "section always 1")
                 XCTAssertNotNil(weakSelf?.searchFeedModel?.search,"It mustNot Nil")
                 let aNewsModel = NewsModel.init(fetcher: (weakSelf?.fetcher!)!, dictionary: aDictionary, search: search)
                 
                 aNewsModel.save()
-                weakSelf?.searchFeedModel?.isNeedUpdateServer(dictionary: aDictionary, page: 0)
-                //                XCTAssertTrue(needUpdate == true, "It is Must be true")
                 weakSelf?.searchFeedModel?.letSearch(keyword: stringKey, completion: { (search) in
                     XCTAssertNotNil(weakSelf?.searchFeedModel?.search,"It mustNot Nil")
-                    weakSelf?.searchFeedModel?.isNeedUpdateServer(dictionary: aDictionary, page: 0)
+//                    weakSelf?.searchFeedModel?.isNeedUpdateServer(dictionary: aDictionary, page: 0)
                     weakSelf?.searchFeedModel?.letSearch(keyword: stringKey, completion: { (search) in
                         XCTAssertNotNil(weakSelf?.searchFeedModel?.search,"It mustNot Nil")
                     })
@@ -269,7 +264,7 @@ class SearchTest: XCTestCase {
         
     }
     func complete(page:Int16){
-        debugPrint("Complete")
+        
     }
     
     func testSearchServer(){
@@ -328,7 +323,7 @@ class SearchTest: XCTestCase {
         
         aNewsModel.title = nil
         aNewsModel.datePostDate()
-        debugPrint(aNewsModel)
+      
         
         aNewsModel.save()
         

@@ -38,7 +38,7 @@ class NYNewsTests: XCTestCase {
         super.tearDown()
     }
     func releaseAll(){
-//        newsFeedsModel?.cancelOperation()
+        newsFeedsModel?.cancelOperation()
         appDelegate = nil
         newsFeedsModel = nil
         managedObjectContext = nil
@@ -122,7 +122,7 @@ class NYNewsTests: XCTestCase {
         
         aNewsModel.title = nil
         aNewsModel.datePostDate()
-        debugPrint(aNewsModel)
+        
         
         aNewsModel.save()
         

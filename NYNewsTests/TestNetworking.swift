@@ -130,12 +130,12 @@ class TestNetworking: XCTestCase {
     
     
     func fetch(query:String){
-        debugPrint(fetcher)
+       
         self.fetcher.fetch(withQueryString: query, failure: { (error) in
-            debugPrint("error \(String(describing: error))")
+           
             XCTAssertNotNil(error, "error Not nil")
         }, completion: { (dictionary) in
-            debugPrint("this fetch \(dictionary)")
+           
             XCTAssertNotNil(dictionary, "dictionary Not nil")
         })
     }
