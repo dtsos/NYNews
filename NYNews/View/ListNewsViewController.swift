@@ -81,7 +81,7 @@ class ListNewsViewController: UIViewController,UICollectionViewDelegate,UICollec
         
         refreshControl.addTarget(self, action: #selector(didPullToRefresh), for: .valueChanged)
         collectionView.refreshControl =  refreshControl
-        let attributes = [NSForegroundColorAttributeName: UIColor.black]
+        let attributes = [NSAttributedStringKey.foregroundColor: UIColor.black]
         let attributedTitle = NSAttributedString(string: "Refreshing News Feed", attributes: attributes)
         refreshControl.attributedTitle =  attributedTitle
         refreshControl.beginRefreshing()
@@ -106,7 +106,7 @@ class ListNewsViewController: UIViewController,UICollectionViewDelegate,UICollec
     //MARK: UICollectionViewDelegate
     
     
-    func didPullToRefresh() {
+    @objc func didPullToRefresh() {
         if self.searchController.isActive {
             if (searchFeed?.isNews)! && searchFeed?.search != nil {
                 self.searchFeed?.cancelOperation()
