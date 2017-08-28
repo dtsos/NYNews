@@ -1,5 +1,6 @@
 # NYNews
 NYNews
+
 Swift 4
 
 This is Sample Application Feed using NY Times.

@@ -37,7 +37,7 @@ extension URLSession {
 }
 
 
-extension NSDate {
+extension Date {
     func dateDiff() -> String? {
         
         

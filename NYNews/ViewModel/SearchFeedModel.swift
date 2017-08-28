@@ -177,7 +177,7 @@ class SearchNewsFeedModel:NSObject {
                             newsModel.news?.isHeadline = false
                             newsModel.news?.page = page
                             newsModel.news?.whichSearch = search
-                            newsModel.news?.dateModified = NSDate()
+                            newsModel.news?.dateModified = NSDate() as Date
                             //                    search.add(newsModel)
                             
                             newsModel.save()
@@ -216,7 +216,7 @@ class SearchNewsFeedModel:NSObject {
     func createNewSearch(keyword:String) -> Search?{
         let search:Search = Search(context:self.context!)
         search.keyword = keyword
-        search.date =  NSDate()
+        search.date =  NSDate() as Date
         
         (try! self.context?.save())
         
@@ -264,7 +264,7 @@ class SearchNewsFeedModel:NSObject {
         if let i = items.index(where: { $0.keyword == keyword}) {
             
             aSearch =  (items[i])
-            aSearch.date = NSDate()
+            aSearch.date = NSDate() as Date
             
             ( try! self.context?.save())
             

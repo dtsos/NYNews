@@ -153,11 +153,11 @@ class NewsModel {
         dateFmt.dateFormat = format
         let newreadableDate = dateFmt.date(from: stringDate!)
         if newreadableDate != nil{
-            self.news?.pubDate = newreadableDate! as NSDate
+            self.news?.pubDate = newreadableDate! as Date
         }
     }
     func saveCoreData(){
-        self.news?.dateModified = NSDate()
+        self.news?.dateModified = NSDate() as Date
         
         (try! context?.save())
         
@@ -347,7 +347,7 @@ class NewsFeedModel : NSObject {
                         
                         newsModel.news?.isHeadline = true
                         newsModel.news?.page = page
-                        newsModel.news?.dateModified = NSDate()
+                        newsModel.news?.dateModified = NSDate() as Date
                         newsModel.save()
                         debugPrint(newsModel.news!)
                         let news = newsModel.news!
